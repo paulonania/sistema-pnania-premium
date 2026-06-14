@@ -424,7 +424,7 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         except Exception:
             pass
 
-        if df_coleta is None and not is_streamlit_cloud():
+        if df_coleta is None:
             try:
                 caminho_last = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last_data.csv")
                 if os.path.exists(caminho_last):
@@ -517,12 +517,7 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.multi_cell(0, 4.5, _texto_latin(meta["notas_parecer"]))
                 pdf.ln(2.5)
 
-        # Adiciona Nota Técnica no final da página 1 (no modo apenas_tabelas)
-        pdf.ln(3)
-        pdf.set_font("Helvetica", "I", 8)
-        pdf.set_text_color(100, 116, 139)
-        nota_tecnica_txt = "Nota Técnica: A ciência é um guia, não um absoluto. Nossa análise integra dados de precisão, inspeção visual e contexto ambiental para o diagnóstico final."
-        pdf.multi_cell(0, 4, _texto_latin(nota_tecnica_txt), border=0, align="L")
+
     else:
         # Modo Completo: Página 2 contém Parecer Técnico (letra maior) e Gráficos de Análise
         pdf.add_page()
@@ -560,12 +555,7 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.ln(3)
             pdf.ln(2)
 
-        # Adiciona Nota Técnica no modo completo antes dos gráficos
-        pdf.set_font("Helvetica", "I", 8.5)
-        pdf.set_text_color(100, 116, 139)
-        nota_tecnica_txt = "Nota Técnica: A ciência é um guia, não um absoluto. Nossa análise integra dados de precisão, inspeção visual e contexto ambiental para o diagnóstico final."
-        pdf.multi_cell(0, 4.2, _texto_latin(nota_tecnica_txt), border=0, align="L")
-        pdf.ln(4)
+
 
         # 2. Gráficos de Análise
         pdf.set_font("Helvetica", "B", 13)
