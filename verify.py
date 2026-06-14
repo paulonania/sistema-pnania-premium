@@ -210,7 +210,7 @@ def test_diagnostico_perfil():
     
     # PR 4: 7.0 - 9.0
     lbl, color, app = classificar_perfil(8.0, "Pista de Competição")
-    assert lbl == "Pista Macia (Alerta)" and color == "#f57c00" and app == "", f"Competição PR 4 error: {lbl}, {color}"
+    assert lbl == "Pista Macia (Necessidade de Ajustes)" and color == "#c62828" and app == "", f"Competição PR 4 error: {lbl}, {color}"
     
     # PR 5: > 9.0
     lbl, color, app = classificar_perfil(9.5, "Pista de Competição")

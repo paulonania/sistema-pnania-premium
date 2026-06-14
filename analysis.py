@@ -330,7 +330,7 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
         elif media < 7.0:
             return "Pista Treinamento (Alerta)", "#f57c00", ""
         elif media <= 9.0:
-            return "Pista Macia (Alerta)", "#f57c00", ""
+            return "Pista Macia (Necessidade de Ajustes)", "#c62828", ""
         else:
             return "Pista Pesada (Necessidade de Ajustes)", "#c62828", ""
     else:
