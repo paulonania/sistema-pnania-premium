@@ -97,35 +97,35 @@ def test_risco_biomecanico():
 
 def test_regularidade_cv():
     print("Testing Block 2: CV Uniformity Classifications...")
-    # Penetrômetro & ICG: Exc < 10%, Boa 10-15%, Alerta 15-20%, Crítica > 20%
+    # Penetrômetro & ICG: Ideal <= 15%, Alerta 15-20%, Crítico > 20%
     lbl, _ = classificar_penetro(9.5)
-    assert lbl == "Excelente", f"Penetro CV Exc: {lbl}"
+    assert lbl == "Ideal", f"Penetro CV Ideal 1: {lbl}"
     lbl, _ = classificar_penetro(12.0)
-    assert lbl == "Boa", f"Penetro CV Boa: {lbl}"
+    assert lbl == "Ideal", f"Penetro CV Ideal 2: {lbl}"
     lbl, _ = classificar_penetro(17.5)
     assert lbl == "Alerta", f"Penetro CV Alerta: {lbl}"
     lbl, _ = classificar_penetro(22.0)
-    assert lbl == "Necessidade de Ajustes", f"Penetro CV Crítica: {lbl}"
+    assert lbl == "Crítico", f"Penetro CV Crítico: {lbl}"
 
-    # Umidade: Exc < 5%, Boa 5-10%, Alerta 10-15%, Crítica > 15%
+    # Umidade: Ideal <= 10%, Alerta 10-15%, Crítico > 15%
     lbl, _ = classificar_umidade(4.5)
-    assert lbl == "Excelente", f"Umidade CV Exc: {lbl}"
+    assert lbl == "Ideal", f"Umidade CV Ideal 1: {lbl}"
     lbl, _ = classificar_umidade(7.5)
-    assert lbl == "Boa", f"Umidade CV Boa: {lbl}"
+    assert lbl == "Ideal", f"Umidade CV Ideal 2: {lbl}"
     lbl, _ = classificar_umidade(12.5)
     assert lbl == "Alerta", f"Umidade CV Alerta: {lbl}"
     lbl, _ = classificar_umidade(16.5)
-    assert lbl == "Necessidade de Ajustes", f"Umidade CV Crítica: {lbl}"
+    assert lbl == "Crítico", f"Umidade CV Crítico: {lbl}"
 
-    # Espessura: Exc < 4%, Boa 4-8%, Alerta 8-12%, Crítica > 12%
+    # Espessura: Ideal <= 8%, Alerta 8-12%, Crítico > 12%
     lbl, _ = classificar_espessura(3.5)
-    assert lbl == "Excelente", f"Espessura CV Exc: {lbl}"
+    assert lbl == "Ideal", f"Espessura CV Ideal 1: {lbl}"
     lbl, _ = classificar_espessura(6.0)
-    assert lbl == "Boa", f"Espessura CV Boa: {lbl}"
+    assert lbl == "Ideal", f"Espessura CV Ideal 2: {lbl}"
     lbl, _ = classificar_espessura(10.0)
     assert lbl == "Alerta", f"Espessura CV Alerta: {lbl}"
     lbl, _ = classificar_espessura(14.0)
-    assert lbl == "Necessidade de Ajustes", f"Espessura CV Crítica: {lbl}"
+    assert lbl == "Crítico", f"Espessura CV Crítico: {lbl}"
 
 
 def test_icg_dinamico():

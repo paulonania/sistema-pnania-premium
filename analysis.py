@@ -1,34 +1,28 @@
 def classificar_penetro(valor):
-    if valor < 10.0:
-        return "Excelente", "#2e7d32"
-    elif valor <= 15.0:
-        return "Boa", "#2e7d32"
+    if valor <= 15.0:
+        return "Ideal", "#2e7d32"
     elif valor <= 20.0:
         return "Alerta", "#f57c00"
     else:
-        return "Necessidade de Ajustes", "#c62828"
+        return "Crítico", "#c62828"
 
 
 def classificar_umidade(valor):
-    if valor < 5.0:
-        return "Excelente", "#2e7d32"
-    elif valor <= 10.0:
-        return "Boa", "#2e7d32"
+    if valor <= 10.0:
+        return "Ideal", "#2e7d32"
     elif valor <= 15.0:
         return "Alerta", "#f57c00"
     else:
-        return "Necessidade de Ajustes", "#c62828"
+        return "Crítico", "#c62828"
 
 
 def classificar_espessura(valor):
-    if valor < 4.0:
-        return "Excelente", "#2e7d32"
-    elif valor <= 8.0:
-        return "Boa", "#2e7d32"
+    if valor <= 8.0:
+        return "Ideal", "#2e7d32"
     elif valor <= 12.0:
         return "Alerta", "#f57c00"
     else:
-        return "Necessidade de Ajustes", "#c62828"
+        return "Crítico", "#c62828"
 
 
 def calcular_io(serie):
