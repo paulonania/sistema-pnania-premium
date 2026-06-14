@@ -608,5 +608,88 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.cell(110, 4, _texto_latin(txt_cv), border=0, align="C")
                 pdf.set_y(y_before_images + 73)
 
+        # --- Página 3: Referência Técnica / Classificação da Pista ---
+        pdf.add_page()
+        _adicionar_logo(pdf, largura=45)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.set_y(pdf.get_y() + 4)
+
+        # Título da Seção
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.set_text_color(15, 58, 97)
+        pdf.cell(0, 6, _texto_latin("Classificação da Pista"), ln=True)
+        pdf.ln(1.5)
+
+        # Descrição
+        pdf.set_font("Helvetica", "", 9.5)
+        pdf.set_text_color(50, 50, 50)
+        desc_txt = "A resistência da pista, medida pelo penetrômetro, é categorizada conforme a profundidade de penetração, indicando o comportamento da superfície para diferentes níveis de exigência:"
+        pdf.multi_cell(0, 4.5, _texto_latin(desc_txt))
+        pdf.ln(3)
+
+        # Cabeçalhos da Tabela
+        pdf.set_fill_color(240, 244, 248)
+        pdf.set_draw_color(200, 210, 220)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_text_color(15, 58, 97)
+        pdf.cell(50, 6, _texto_latin("Faixa (cm)"), border=1, fill=True, align="C")
+        pdf.cell(100, 6, _texto_latin("Classificação"), border=1, fill=True, align="C", ln=True)
+
+        # Linhas da tabela
+        linhas = [
+            ("Abaixo de 4,0", "Pista Dura"),
+            ("4,0 a 5,0", "Pista Competição"),
+            ("5,0 a 7,0", "Pista Treinamento"),
+            ("7,0 a 9,0", "Pista Macia"),
+            ("Acima de 9,0", "Pista Pesada"),
+        ]
+        
+        pdf.set_font("Helvetica", "", 9)
+        pdf.set_text_color(50, 50, 50)
+        bg_alt = False
+        for faixa, classif in linhas:
+            pdf.set_fill_color(248, 250, 252)
+            fill = 1 if bg_alt else 0
+            pdf.cell(50, 6, _texto_latin(faixa), border=1, fill=fill, align="C")
+            pdf.cell(100, 6, _texto_latin(classif), border=1, fill=fill, align="C", ln=True)
+            bg_alt = not bg_alt
+        
+        pdf.ln(5)
+
+        # Como a pista trabalha
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_text_color(15, 58, 97)
+        pdf.cell(0, 6, _texto_latin("Como a pista trabalha (Fases de Desempenho):"), ln=True)
+        pdf.ln(1.5)
+
+        pdf.set_font("Helvetica", "", 9.5)
+        pdf.set_text_color(50, 50, 50)
+        pdf.multi_cell(0, 4.5, _texto_latin("Para oferecer segurança e performance ao cavalo, a superfície deve responder corretamente em três etapas:"))
+        pdf.ln(3.0)
+
+        # Fases
+        fases_desc = [
+            ("Impacto", "A capacidade do solo de absorver o choque inicial do casco."),
+            ("Suporte", "A firmeza necessária para sustentar o peso do cavalo sem afundar excessivamente."),
+            ("Tração", "A aderência adequada para garantir segurança na propulsão e nos giros."),
+        ]
+
+        for fase, desc in fases_desc:
+            pdf.set_font("Helvetica", "B", 9.5)
+            pdf.set_text_color(15, 58, 97)
+            pdf.cell(20, 5, _texto_latin(f"{fase}:"), ln=False)
+            pdf.set_font("Helvetica", "", 9.5)
+            pdf.set_text_color(50, 50, 50)
+            pdf.cell(0, 5, _texto_latin(desc), ln=True)
+            pdf.ln(1)
+
+        pdf.ln(5)
+
+        # Nota Técnica final
+        pdf.set_font("Helvetica", "I", 8.5)
+        pdf.set_text_color(100, 116, 139)
+        nota_tecnica_txt = "Nota Técnica: A ciência é um guia, não um absoluto. Nossa análise integra dados de precisão, inspeção visual e contexto ambiental para o diagnóstico final."
+        pdf.multi_cell(0, 4.2, _texto_latin(nota_tecnica_txt), border=0, align="L")
+
     pdf_output = pdf.output()
     return bytes(pdf_output) if isinstance(pdf_output, (bytes, bytearray)) else pdf_output.encode("latin-1", errors="ignore")
