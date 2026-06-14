@@ -1,0 +1,28 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.venv/
+venv/
+ENV/
+
+# Streamlit/OS local configs
+.streamlit/config.toml
+.streamlit/secrets.toml
+.streamlit/
+.idea/
+.vscode/
+
+# Local data & temp files
+last_data.csv
+historico/
+*.pdf
+.gemini/
+antigravity/
+.tempmediaStorage/
+*comparativo_teste.png
+*comparativo_teste.jpg
+*.xlsx
+*.xls

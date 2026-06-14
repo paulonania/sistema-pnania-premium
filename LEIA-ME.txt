@@ -1,0 +1,46 @@
+Sistema Pnania Premium — Relatório de Desempenho
+================================================
+
+Como instalar e usar (Mac ou Windows)
+-------------------------------------
+
+1. Instale Python 3.9 ou mais recente:
+   https://www.python.org/downloads/
+
+2. Abra o Terminal (Mac) ou Prompt de Comando (Windows) nesta pasta.
+
+3. Instale as dependências:
+   pip install -r requirements.txt
+
+4. Inicie o sistema:
+   python -m streamlit run app.py
+
+   No Windows, se "python" não funcionar, tente:
+   py -m streamlit run app.py
+
+5. O navegador abrirá em http://localhost:8501
+
+Como usar o app
+---------------
+
+Passo 1 — Configurar
+  • Dados da fazenda, pista e grade de amostragem
+  • Opcional: carregar um CSV antigo
+
+Passo 2 — Coletar
+  • Preencher a tabela com as medições de campo
+
+Passo 3 — Relatório
+  • Ver resumo e gráficos
+  • Baixar PDF e CSV antes de fechar o navegador
+
+Arquivos do projeto
+-------------------
+  app.py          — Interface principal
+  data.py         — Grade e exportação CSV
+  analysis.py     — Cálculos do método Pnania
+  charts.py       — Gráficos
+  pdf_report.py   — Geração do PDF
+  assets/logo.png — Logo Paulo Nania
+
+Suporte: Paulo Nania Equestrian Engineering

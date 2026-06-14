@@ -1,0 +1,244 @@
+import os
+import sys
+
+# Add project folder to sys.path
+sys.path.append(r"c:\Users\paulo\Downloads\Sistema-Pnania-Premium (1)\Sistema-Pnania-Premium")
+
+from analysis import (
+    classificar_desvio_fase, 
+    classificar_umidade_valor, 
+    classificar_espessura_valor,
+    classificar_penetro,
+    classificar_umidade,
+    classificar_espessura,
+    calcular_estatisticas,
+    classificar_perfil
+)
+import pandas as pd
+
+def test_risco_biomecanico():
+    print("Testing Block 1: Average-based phase classification and worst-of consolidation...")
+
+    # Case A: All phases IDEAL
+    # Impacto: mean 4.0 -> IDEAL
+    # Suporte: mean 6.0 -> IDEAL
+    # Tração: mean 8.0 -> IDEAL
+    # Overall: IDEAL (worst of three IDEALs)
+    df_a = pd.DataFrame({
+        "Linha": [1]*10,
+        "Ponto": list(range(1, 11)),
+        "1ª Queda": [4.0]*10,
+        "2ª Queda": [6.0]*10,
+        "3ª Queda": [8.0]*10,
+        "Umidade": [18.0]*10,
+        "Espessura": [12]*10
+    })
+    meta = {
+        "coletou_umidade": True,
+        "coletou_espessura": True,
+        "global_umi": 18.0,
+        "global_esp": 12
+    }
+    stats_a = calcular_estatisticas(df_a, meta)
+    assert stats_a["fases"][0]["status"] == "IDEAL", f"Impacto Status: {stats_a['fases'][0]['status']}"
+    assert stats_a["fases"][1]["status"] == "IDEAL"
+    assert stats_a["fases"][2]["status"] == "IDEAL"
+    assert stats_a["geral_status"] == "IDEAL", f"Overall Status: {stats_a['geral_status']}"
+
+    # Case B: At least one ALERTA, no CRÍTICO
+    # Impacto: mean 2.8 -> ALERTA
+    # Suporte: mean 6.0 -> IDEAL
+    # Tração: mean 8.0 -> IDEAL
+    # Overall: ALERTA (worst of ALERTA, IDEAL, IDEAL)
+    df_b = pd.DataFrame({
+        "Linha": [1]*10,
+        "Ponto": list(range(1, 11)),
+        "1ª Queda": [2.8]*10,
+        "2ª Queda": [6.0]*10,
+        "3ª Queda": [8.0]*10,
+        "Umidade": [18.0]*10,
+        "Espessura": [12]*10
+    })
+    stats_b = calcular_estatisticas(df_b, meta)
+    assert stats_b["fases"][0]["status"] == "ALERTA", f"Impacto Status: {stats_b['fases'][0]['status']}"
+    assert stats_b["fases"][1]["status"] == "IDEAL"
+    assert stats_b["fases"][2]["status"] == "IDEAL"
+    assert stats_b["geral_status"] == "ALERTA", f"Overall Status: {stats_b['geral_status']}"
+
+    # Case C: At least one CRÍTICO
+    # Impacto: mean 1.5 -> CRÍTICO
+    # Suporte: mean 6.0 -> IDEAL
+    # Tração: mean 6.8 -> ALERTA
+    # Overall: CRÍTICO (worst of CRÍTICO, IDEAL, ALERTA)
+    df_c = pd.DataFrame({
+        "Linha": [1]*10,
+        "Ponto": list(range(1, 11)),
+        "1ª Queda": [1.5]*10,
+        "2ª Queda": [6.0]*10,
+        "3ª Queda": [6.8]*10,
+        "Umidade": [18.0]*10,
+        "Espessura": [12]*10
+    })
+    stats_c = calcular_estatisticas(df_c, meta)
+    assert stats_c["fases"][0]["status"] == "CRÍTICO", f"Impacto Status: {stats_c['fases'][0]['status']}"
+    assert stats_c["fases"][1]["status"] == "IDEAL"
+    assert stats_c["fases"][2]["status"] == "ALERTA"
+    assert stats_c["geral_status"] == "CRÍTICO", f"Overall Status: {stats_c['geral_status']}"
+
+    # Test supporting sensors classifications (keep from previous desvio_absoluto tests)
+    # Umidade (Center 18.0): Exc <= 0.5, Boa <= 1.5, Alerta <= 3.0, Crítica > 3.0
+    lbl, _ = classificar_umidade_valor(17.9, "18.0%") # dev 0.1 -> Excelente
+    assert lbl == "Excelente", f"Umidade Exc: {lbl}"
+    
+    # Espessura (Center 12.0): Exc <= 0.5, Boa <= 2.0, Alerta <= 4.0, Crítica > 4.0
+    lbl, _ = classificar_espessura_valor(12.3, "12 cm") # dev 0.3 -> Excelente
+    assert lbl == "Excelente", f"Espessura Exc: {lbl}"
+
+
+def test_regularidade_cv():
+    print("Testing Block 2: CV Uniformity Classifications...")
+    # Penetrômetro & ICG: Exc < 10%, Boa 10-15%, Alerta 15-20%, Crítica > 20%
+    lbl, _ = classificar_penetro(9.5)
+    assert lbl == "Excelente", f"Penetro CV Exc: {lbl}"
+    lbl, _ = classificar_penetro(12.0)
+    assert lbl == "Boa", f"Penetro CV Boa: {lbl}"
+    lbl, _ = classificar_penetro(17.5)
+    assert lbl == "Alerta", f"Penetro CV Alerta: {lbl}"
+    lbl, _ = classificar_penetro(22.0)
+    assert lbl == "Necessidade de Ajustes", f"Penetro CV Crítica: {lbl}"
+
+    # Umidade: Exc < 5%, Boa 5-10%, Alerta 10-15%, Crítica > 15%
+    lbl, _ = classificar_umidade(4.5)
+    assert lbl == "Excelente", f"Umidade CV Exc: {lbl}"
+    lbl, _ = classificar_umidade(7.5)
+    assert lbl == "Boa", f"Umidade CV Boa: {lbl}"
+    lbl, _ = classificar_umidade(12.5)
+    assert lbl == "Alerta", f"Umidade CV Alerta: {lbl}"
+    lbl, _ = classificar_umidade(16.5)
+    assert lbl == "Necessidade de Ajustes", f"Umidade CV Crítica: {lbl}"
+
+    # Espessura: Exc < 4%, Boa 4-8%, Alerta 8-12%, Crítica > 12%
+    lbl, _ = classificar_espessura(3.5)
+    assert lbl == "Excelente", f"Espessura CV Exc: {lbl}"
+    lbl, _ = classificar_espessura(6.0)
+    assert lbl == "Boa", f"Espessura CV Boa: {lbl}"
+    lbl, _ = classificar_espessura(10.0)
+    assert lbl == "Alerta", f"Espessura CV Alerta: {lbl}"
+    lbl, _ = classificar_espessura(14.0)
+    assert lbl == "Necessidade de Ajustes", f"Espessura CV Crítica: {lbl}"
+
+
+def test_icg_dinamico():
+    print("Testing dynamic ICG calculation...")
+    df = pd.DataFrame({
+        "Linha": [1, 1, 2, 2],
+        "Ponto": [1, 2, 1, 2],
+        "1ª Queda": [4.0, 4.4, 3.8, 4.2], 
+        "2ª Queda": [5.5, 6.0, 5.8, 5.9], 
+        "3ª Queda": [7.2, 8.0, 7.5, 7.8], 
+        "Umidade": [18.0, 18.5, 17.5, 18.0], 
+        "Espessura": [12, 13, 11, 12] 
+    })
+
+    # Scenario A: All active
+    meta = {
+        "coletou_umidade": True,
+        "coletou_espessura": True,
+        "global_umi": 18.0,
+        "global_esp": 12
+    }
+    stats = calcular_estatisticas(df, meta)
+    icg_a = stats["icg"]
+    
+    io_gen = stats["io_geral"]
+    io_umi = stats["io_umidade"]
+    io_esp = stats["io_espessura"]
+    expected_icg_a = (0.4 * io_gen + 0.3 * io_umi + 0.3 * io_esp) / 1.0
+    assert abs(icg_a - expected_icg_a) < 1e-6, f"ICG All Active error. Got {icg_a}, expected {expected_icg_a}"
+
+    # Scenario B: No moisture
+    meta["coletou_umidade"] = False
+    stats_b = calcular_estatisticas(df, meta)
+    icg_b = stats_b["icg"]
+    expected_icg_b = (0.4 * io_gen + 0.3 * io_esp) / 0.7
+    assert abs(icg_b - expected_icg_b) < 1e-6, f"ICG No Moisture error. Got {icg_b}, expected {expected_icg_b}"
+
+    # Scenario C: Only penetrometer
+    meta["coletou_espessura"] = False
+    stats_c = calcular_estatisticas(df, meta)
+    icg_c = stats_c["icg"]
+    expected_icg_c = io_gen
+    assert abs(icg_c - expected_icg_c) < 1e-6, f"ICG Only Pen error. Got {icg_c}, expected {expected_icg_c}"
+
+
+def test_diagnostico_perfil():
+    print("Testing Block 1: Diagnóstico de Perfil...")
+    # PR 1: < 4.0
+    lbl, color, app = classificar_perfil(3.5)
+    assert lbl == "PR 1 - Dura" and color == "#64748b" and app == "Risco alto de lesão articular.", f"PR 1 error: {lbl}"
+    
+    # PR 2: 4.0 - 5.0
+    lbl, color, app = classificar_perfil(4.5)
+    assert lbl == "PR 2 - Firme 1" and color == "#2e7d32" and app == "Competição: Performance e resposta.", f"PR 2 error: {lbl}"
+    
+    # PR 3: 5.0 - 7.0
+    lbl, color, app = classificar_perfil(6.0)
+    assert lbl == "PR 3 - Firme 2" and color == "#2e7d32" and app == "Treinamento: Estabilidade e proteção.", f"PR 3 error: {lbl}"
+    
+    # PR 4: 7.0 - 9.0
+    lbl, color, app = classificar_perfil(8.0)
+    assert lbl == "PR 4 - Macia" and color == "#f57c00" and app == "Limite de fadiga; requer atenção.", f"PR 4 error: {lbl}"
+    
+    # PR 5: > 9.0
+    lbl, color, app = classificar_perfil(9.5)
+    assert lbl == "PR 5 - Pesada" and color == "#c62828" and app == "Condição de solo profundo.", f"PR 5 error: {lbl}"
+
+
+def test_pista_competicao():
+    print("Testing Block 5: Pista de Competição alvos...")
+    df = pd.DataFrame({
+        "Linha": [1]*5,
+        "Ponto": list(range(1, 6)),
+        "1ª Queda": [3.5]*5,  # mean 3.5 -> IDEAL for Competição (3.0 to 4.0)
+        "2ª Queda": [5.0]*5,  # mean 5.0 -> IDEAL for Competição (4.0 to 5.0)
+        "3ª Queda": [5.5]*5,  # mean 5.5 -> IDEAL for Competição (5.0 to 6.0)
+        "Umidade": [18.0]*5,
+        "Espessura": [12]*5
+    })
+    meta = {
+        "coletou_umidade": True,
+        "coletou_espessura": True,
+        "global_umi": 18.0,
+        "global_esp": 12,
+        "tipo_pista": "Pista de Competição"
+    }
+    stats = calcular_estatisticas(df, meta)
+    assert stats["fases"][0]["status"] == "IDEAL", f"Impacto Status: {stats['fases'][0]['status']}"
+    assert stats["fases"][1]["status"] == "IDEAL", f"Suporte Status: {stats['fases'][1]['status']}"
+    assert stats["fases"][2]["status"] == "IDEAL", f"Tração Status: {stats['fases'][2]['status']}"
+    assert stats["geral_status"] == "IDEAL", f"Overall Status: {stats['geral_status']}"
+
+    # Test failure counts with value out of range for Competição (e.g. 4.5 in 1ª queda)
+    df_fail = pd.DataFrame({
+        "Linha": [1],
+        "Ponto": [1],
+        "1ª Queda": [4.5],  # 4.5 -> ALERTA for Competição (4.0 < med <= 5.0)
+        "2ª Queda": [5.0],
+        "3ª Queda": [5.5],
+        "Umidade": [18.0],
+        "Espessura": [12]
+    })
+    stats_fail = calcular_estatisticas(df_fail, meta)
+    assert stats_fail["fases"][0]["status"] == "ALERTA", f"Impacto Status Fail: {stats_fail['fases'][0]['status']}"
+
+
+def main():
+    test_risco_biomecanico()
+    test_regularidade_cv()
+    test_icg_dinamico()
+    test_diagnostico_perfil()
+    test_pista_competicao()
+    print("\nSUCCESS: All dashboard architecture logic and tests passed successfully!")
+
+if __name__ == "__main__":
+    main()
