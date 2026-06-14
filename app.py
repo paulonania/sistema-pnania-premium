@@ -24,6 +24,7 @@ from analysis import (
 from charts import fig_mapa_espessura, fig_mapa_umidade, fig_penetrometro, fig_comparativa
 from data import (
     assinatura_grade,
+    baixar_do_google_drive,
     carregar_csv,
     criar_grade,
     exportar_csv,
@@ -52,16 +53,28 @@ EDITOR_KEY = "coleta_editor"
 EDITOR_SIG_KEY = "coleta_editor_sig"
 CSV_UPLOAD_KEY = "csv_upload_id"
 CSV_LOAD_MSG_KEY = "csv_load_msg"
+DRIVE_LINK_KEY = "drive_link_loaded"
+DRIVE_LINK_MSG_KEY = "drive_link_msg"
+
+
+def aplicar_levantamento_carregado(meta_nova, df_nova, source_id, mensagem):
+    st.session_state.meta = meta_nova
+    st.session_state.df_coleta = df_nova
+    st.session_state[CSV_UPLOAD_KEY] = source_id
+    st.session_state[CSV_LOAD_MSG_KEY] = mensagem
+    reset_coleta_editor()
+    salvar_estado_local()
 
 
 def identificar_arquivo(arquivo):
-    return f"{arquivo.name}:{arquivo.size}"
+    return f"upload:{arquivo.name}:{arquivo.size}"
 
 
 def processar_csv_upload(arquivo):
     if arquivo is None:
-        st.session_state.pop(CSV_UPLOAD_KEY, None)
-        st.session_state.pop(CSV_LOAD_MSG_KEY, None)
+        if not st.session_state.get(DRIVE_LINK_KEY):
+            st.session_state.pop(CSV_UPLOAD_KEY, None)
+            st.session_state.pop(CSV_LOAD_MSG_KEY, None)
         return
 
     file_id = identificar_arquivo(arquivo)
@@ -73,16 +86,47 @@ def processar_csv_upload(arquivo):
     with st.spinner("Carregando levantamento..."):
         try:
             meta_nova, df_nova = carregar_csv(arquivo)
-            st.session_state.meta = meta_nova
-            st.session_state.df_coleta = df_nova
-            st.session_state[CSV_UPLOAD_KEY] = file_id
-            st.session_state[CSV_LOAD_MSG_KEY] = f"Levantamento de {meta_nova['fazenda']} carregado."
-            reset_coleta_editor()
-            salvar_estado_local()
+            aplicar_levantamento_carregado(
+                meta_nova,
+                df_nova,
+                file_id,
+                f"Levantamento de {meta_nova['fazenda']} carregado.",
+            )
+            st.session_state.pop(DRIVE_LINK_KEY, None)
+            st.session_state.pop(DRIVE_LINK_MSG_KEY, None)
             st.rerun()
         except Exception as exc:
             st.session_state[CSV_UPLOAD_KEY] = file_id
             st.error(f"Erro ao carregar arquivo: {exc}")
+
+
+def processar_link_google_drive(link):
+    link = (link or "").strip()
+    if not link:
+        return
+
+    source_id = f"drive:{link}"
+    if st.session_state.get(CSV_UPLOAD_KEY) == source_id:
+        if st.session_state.get(CSV_LOAD_MSG_KEY):
+            st.success(st.session_state[CSV_LOAD_MSG_KEY])
+        return
+
+    with st.spinner("Baixando arquivo do Google Drive..."):
+        try:
+            arquivo_drive = baixar_do_google_drive(link)
+            meta_nova, df_nova = carregar_csv(arquivo_drive)
+            aplicar_levantamento_carregado(
+                meta_nova,
+                df_nova,
+                source_id,
+                f"Levantamento de {meta_nova['fazenda']} importado do Google Drive.",
+            )
+            st.session_state[DRIVE_LINK_KEY] = link
+            st.session_state.pop(DRIVE_LINK_MSG_KEY, None)
+            st.rerun()
+        except Exception as exc:
+            st.session_state[CSV_UPLOAD_KEY] = source_id
+            st.error(f"Erro ao importar do Google Drive: {exc}")
 
 
 def is_streamlit_cloud():
@@ -288,6 +332,19 @@ def render_configurar():
     st.subheader("Histórico")
     arquivo = st.file_uploader("Carregar levantamento anterior (CSV ou Excel)", type=["csv", "xlsx", "xls"])
     processar_csv_upload(arquivo)
+
+    st.markdown("**ou importe direto do Google Drive**")
+    link_drive = st.text_input(
+        "Cole o link do Google Drive ou Google Planilhas",
+        placeholder="https://drive.google.com/file/d/... ou https://docs.google.com/spreadsheets/d/...",
+        key="drive_link_configurar",
+    )
+    st.caption(
+        "No Drive, use Compartilhar → Acesso geral → Qualquer pessoa com o link. "
+        "Assim você não precisa baixar o arquivo no tablet."
+    )
+    if st.button("Importar do Google Drive", use_container_width=True, key="btn_drive_configurar"):
+        processar_link_google_drive(link_drive)
 
     c_btn1, c_btn2 = st.columns(2)
     with c_btn1:
@@ -810,6 +867,34 @@ def render_comparativa():
                 st.error(f"Erro ao carregar '{f.name}': {e}")
         if adicionou:
             st.rerun()
+
+    st.markdown("**ou adicione pelo link do Google Drive**")
+    link_drive_comp = st.text_input(
+        "Link do Google Drive / Google Planilhas",
+        placeholder="https://drive.google.com/file/d/...",
+        key="drive_link_comparativa",
+    )
+    if st.button("Adicionar do Google Drive", key="btn_drive_comparativa", use_container_width=True):
+        link_drive_comp = (link_drive_comp or "").strip()
+        if link_drive_comp:
+            try:
+                with st.spinner("Baixando arquivo do Google Drive..."):
+                    arquivo_drive = baixar_do_google_drive(link_drive_comp)
+                    if any(item["name"] == arquivo_drive.name for item in st.session_state["comparativo_lista"]):
+                        st.warning("Esse arquivo já está na lista de comparação.")
+                    else:
+                        meta_carregada, df_carregado = carregar_csv(arquivo_drive)
+                        df_analise = preparar_dados_analise(df_carregado, meta_carregada)
+                        stats_carregadas = calcular_estatisticas(df_analise, meta_carregada)
+                        st.session_state["comparativo_lista"].append({
+                            "name": arquivo_drive.name,
+                            "meta": meta_carregada,
+                            "df": df_analise,
+                            "stats": stats_carregadas,
+                        })
+                        st.rerun()
+            except Exception as e:
+                st.error(f"Erro ao importar do Google Drive: {e}")
 
     # 2. Exibir lista de arquivos selecionados com opção de remoção
     if st.session_state["comparativo_lista"]:
