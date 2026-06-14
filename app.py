@@ -52,7 +52,14 @@ EDITOR_KEY = "coleta_editor"
 EDITOR_SIG_KEY = "coleta_editor_sig"
 
 
+def is_streamlit_cloud():
+    import os
+    return os.path.exists("/mount/src") or "STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION" in os.environ
+
+
 def salvar_estado_local():
+    if is_streamlit_cloud():
+        return
     try:
         if "passo" in st.session_state:
             st.session_state.meta["passo"] = st.session_state.passo
@@ -74,7 +81,7 @@ def salvar_estado_local():
 def init_session():
     if "meta" not in st.session_state or "df_coleta" not in st.session_state:
         carregou_sucesso = False
-        if os.path.exists(LAST_DATA_PATH):
+        if not is_streamlit_cloud() and os.path.exists(LAST_DATA_PATH):
             try:
                 with open(LAST_DATA_PATH, "rb") as f:
                     meta_carregada, df_carregado = carregar_csv(f)

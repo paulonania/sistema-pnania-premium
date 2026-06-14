@@ -409,6 +409,10 @@ def _desenhar_tabelas_e_legenda(pdf, stats, meta):
     pdf.ln(2)
 
 
+def is_streamlit_cloud():
+    return os.path.exists("/mount/src") or "STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION" in os.environ
+
+
 def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apenas_tabelas=False, stats=None):
     # Tenta carregar dados de coleta para calcular estatísticas caso stats seja None
     if stats is None:
@@ -420,7 +424,7 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         except Exception:
             pass
 
-        if df_coleta is None:
+        if df_coleta is None and not is_streamlit_cloud():
             try:
                 caminho_last = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last_data.csv")
                 if os.path.exists(caminho_last):
