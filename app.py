@@ -50,6 +50,39 @@ if not os.path.exists(HISTORICO_DIR):
     os.makedirs(HISTORICO_DIR)
 EDITOR_KEY = "coleta_editor"
 EDITOR_SIG_KEY = "coleta_editor_sig"
+CSV_UPLOAD_KEY = "csv_upload_id"
+CSV_LOAD_MSG_KEY = "csv_load_msg"
+
+
+def identificar_arquivo(arquivo):
+    return f"{arquivo.name}:{arquivo.size}"
+
+
+def processar_csv_upload(arquivo):
+    if arquivo is None:
+        st.session_state.pop(CSV_UPLOAD_KEY, None)
+        st.session_state.pop(CSV_LOAD_MSG_KEY, None)
+        return
+
+    file_id = identificar_arquivo(arquivo)
+    if st.session_state.get(CSV_UPLOAD_KEY) == file_id:
+        if st.session_state.get(CSV_LOAD_MSG_KEY):
+            st.success(st.session_state[CSV_LOAD_MSG_KEY])
+        return
+
+    with st.spinner("Carregando levantamento..."):
+        try:
+            meta_nova, df_nova = carregar_csv(arquivo)
+            st.session_state.meta = meta_nova
+            st.session_state.df_coleta = df_nova
+            st.session_state[CSV_UPLOAD_KEY] = file_id
+            st.session_state[CSV_LOAD_MSG_KEY] = f"Levantamento de {meta_nova['fazenda']} carregado."
+            reset_coleta_editor()
+            salvar_estado_local()
+            st.rerun()
+        except Exception as exc:
+            st.session_state[CSV_UPLOAD_KEY] = file_id
+            st.error(f"Erro ao carregar arquivo: {exc}")
 
 
 def is_streamlit_cloud():
@@ -254,17 +287,7 @@ def render_configurar():
 
     st.subheader("Histórico")
     arquivo = st.file_uploader("Carregar levantamento anterior (CSV ou Excel)", type=["csv", "xlsx", "xls"])
-    if arquivo is not None:
-        try:
-            meta_nova, df_nova = carregar_csv(arquivo)
-            st.session_state.meta = meta_nova
-            st.session_state.df_coleta = df_nova
-            reset_coleta_editor()
-            salvar_estado_local()
-            st.success(f"Levantamento de {meta_nova['fazenda']} carregado.")
-            st.rerun()
-        except Exception as exc:
-            st.error(f"Erro ao carregar arquivo: {exc}")
+    processar_csv_upload(arquivo)
 
     c_btn1, c_btn2 = st.columns(2)
     with c_btn1:

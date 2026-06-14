@@ -1,3 +1,5 @@
+import io
+
 import pandas as pd
 
 COLunas_EXPORT = {
@@ -81,6 +83,25 @@ def obter_valor_multi_chaves(row, chaves, padrao=""):
     return padrao
 
 
+def _ler_csv_bytes(uploaded_file):
+    uploaded_file.seek(0)
+    raw = uploaded_file.getvalue() if hasattr(uploaded_file, "getvalue") else uploaded_file.read()
+    uploaded_file.seek(0)
+
+    ultimo_erro = None
+    for encoding in ("utf-8-sig", "utf-8", "latin-1", "cp1252"):
+        try:
+            df = pd.read_csv(io.BytesIO(raw), encoding=encoding)
+            if df is not None and not df.empty:
+                return df
+            raise ValueError("O arquivo CSV está vazio.")
+        except (UnicodeDecodeError, pd.errors.ParserError, ValueError) as exc:
+            ultimo_erro = exc
+    raise ValueError(
+        "Não foi possível ler o CSV. Verifique o formato e a codificação do arquivo."
+    ) from ultimo_erro
+
+
 def carregar_csv(uploaded_file):
     import os
     if uploaded_file is None:
@@ -110,7 +131,7 @@ def carregar_csv(uploaded_file):
         if is_excel:
             df = pd.read_excel(uploaded_file)
         else:
-            df = pd.read_csv(uploaded_file)
+            df = _ler_csv_bytes(uploaded_file)
     except Exception as e:
         raise ValueError(
             f"Erro ao ler o arquivo. Certifique-se de que é um formato suportado (CSV ou Excel) "
