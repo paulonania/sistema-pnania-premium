@@ -173,25 +173,48 @@ def test_icg_dinamico():
 
 def test_diagnostico_perfil():
     print("Testing Block 1: Diagnóstico de Perfil...")
+    
+    # --- Pista de Treinamento (Ideal: 5.0 a 7.0) ---
     # PR 1: < 4.0
-    lbl, color, app = classificar_perfil(3.5)
-    assert lbl == "PR 1 - Dura" and color == "#64748b" and app == "Risco alto de lesão articular.", f"PR 1 error: {lbl}"
+    lbl, color, app = classificar_perfil(3.5, "Pista de Treinamento")
+    assert lbl == "Pista Dura (Baixo)" and color == "#c62828" and app == "", f"Treinamento PR 1 error: {lbl}, {color}"
     
     # PR 2: 4.0 - 5.0
-    lbl, color, app = classificar_perfil(4.5)
-    assert lbl == "PR 2 - Firme 1" and color == "#2e7d32" and app == "Competição: Performance e resposta.", f"PR 2 error: {lbl}"
+    lbl, color, app = classificar_perfil(4.5, "Pista de Treinamento")
+    assert lbl == "Pista Firme 1 (Baixo)" and color == "#c62828" and app == "", f"Treinamento PR 2 error: {lbl}, {color}"
     
     # PR 3: 5.0 - 7.0
-    lbl, color, app = classificar_perfil(6.0)
-    assert lbl == "PR 3 - Firme 2" and color == "#2e7d32" and app == "Treinamento: Estabilidade e proteção.", f"PR 3 error: {lbl}"
+    lbl, color, app = classificar_perfil(6.0, "Pista de Treinamento")
+    assert lbl == "Pista Firme 2 (Ideal)" and color == "#2e7d32" and app == "", f"Treinamento PR 3 error: {lbl}, {color}"
     
     # PR 4: 7.0 - 9.0
-    lbl, color, app = classificar_perfil(8.0)
-    assert lbl == "PR 4 - Macia" and color == "#f57c00" and app == "Limite de fadiga; requer atenção.", f"PR 4 error: {lbl}"
+    lbl, color, app = classificar_perfil(8.0, "Pista de Treinamento")
+    assert lbl == "Pista Macia (Alto)" and color == "#c62828" and app == "", f"Treinamento PR 4 error: {lbl}, {color}"
     
     # PR 5: > 9.0
-    lbl, color, app = classificar_perfil(9.5)
-    assert lbl == "PR 5 - Pesada" and color == "#c62828" and app == "Condição de solo profundo.", f"PR 5 error: {lbl}"
+    lbl, color, app = classificar_perfil(9.5, "Pista de Treinamento")
+    assert lbl == "Pista Pesada (Alto)" and color == "#c62828" and app == "", f"Treinamento PR 5 error: {lbl}, {color}"
+
+    # --- Pista de Competição (Ideal: 4.0 a 5.0) ---
+    # PR 1: < 4.0
+    lbl, color, app = classificar_perfil(3.5, "Pista de Competição")
+    assert lbl == "Pista Dura (Baixo)" and color == "#c62828" and app == "", f"Competição PR 1 error: {lbl}, {color}"
+    
+    # PR 2: 4.0 - 5.0
+    lbl, color, app = classificar_perfil(4.5, "Pista de Competição")
+    assert lbl == "Pista Firme 1 (Ideal)" and color == "#2e7d32" and app == "", f"Competição PR 2 error: {lbl}, {color}"
+    
+    # PR 3: 5.0 - 7.0
+    lbl, color, app = classificar_perfil(6.0, "Pista de Competição")
+    assert lbl == "Pista Firme 2 (Alto)" and color == "#c62828" and app == "", f"Competição PR 3 error: {lbl}, {color}"
+    
+    # PR 4: 7.0 - 9.0
+    lbl, color, app = classificar_perfil(8.0, "Pista de Competição")
+    assert lbl == "Pista Macia (Alto)" and color == "#c62828" and app == "", f"Competição PR 4 error: {lbl}, {color}"
+    
+    # PR 5: > 9.0
+    lbl, color, app = classificar_perfil(9.5, "Pista de Competição")
+    assert lbl == "Pista Pesada (Alto)" and color == "#c62828" and app == "", f"Competição PR 5 error: {lbl}, {color}"
 
 
 def test_pista_competicao():

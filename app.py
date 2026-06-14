@@ -438,7 +438,7 @@ def render_resumo_cards(stats, meta, df):
         col_gen = st.columns([1.3, 1.4, 1.3])
         with col_gen[1]:
             media_fases = sum(stats["medicao_atual"]) / 3
-            rotulo_perfil, cor_perfil, desc_perfil = classificar_perfil(media_fases)
+            rotulo_perfil, cor_perfil, desc_perfil = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
             st.markdown(
                 render_card_html_unificado(
                     titulo="Penetrômetro",
@@ -858,7 +858,7 @@ def render_comparativa():
                 stats_carregadas = item["stats"]
                 
                 media_fases = sum(stats_carregadas["medicao_atual"]) / 3
-                rotulo_perfil, _, _ = classificar_perfil(media_fases)
+                rotulo_perfil, _, _ = classificar_perfil(media_fases, meta_carregada.get("tipo_pista", "Pista de Treinamento"))
                 
                 risco_val = stats_carregadas.get("risco_geral", 0.0)
                 risco_status = stats_carregadas.get("geral_status", "IDEAL")

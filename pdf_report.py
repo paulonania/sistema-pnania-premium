@@ -197,7 +197,7 @@ def _desenhar_tabelas_e_legenda(pdf, stats, meta):
     f_trans = stats["fases"][1]
     f_sup = stats["fases"][2]
     media_fases = sum(stats["medicao_atual"]) / 3
-    rotulo_perfil, cor_perfil, desc_perfil = classificar_perfil(media_fases)
+    rotulo_perfil, cor_perfil, desc_perfil = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
 
     # Título Principal da Seção
     pdf.set_font("Helvetica", "B", 12)

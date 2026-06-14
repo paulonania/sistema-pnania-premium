@@ -60,7 +60,7 @@ def fig_penetrometro(df, meta, stats):
     ax.grid(axis="y", linestyle=":", alpha=0.5, color="#cccccc")
 
     media_fases = sum(stats["medicao_atual"]) / 3
-    rotulo_perfil, _, _ = classificar_perfil(media_fases)
+    rotulo_perfil, _, _ = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
 
     plt.suptitle("ÍNDICE DE PENETRÔMETRO", fontsize=13, fontweight="bold", color="#0f3a61", y=0.98)
     plt.title(

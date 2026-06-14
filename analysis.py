@@ -326,14 +326,28 @@ def classificar_espessura_valor(valor_medido, ideal_str):
         return "Crítica", "#c62828"
 
 
-def classificar_perfil(media):
-    if media < 4.0:
-        return "PR 1 - Dura", "#64748b", "Risco alto de lesão articular."
-    elif media < 5.0:
-        return "PR 2 - Firme 1", "#2e7d32", "Competição: Performance e resposta."
-    elif media < 7.0:
-        return "PR 3 - Firme 2", "#2e7d32", "Treinamento: Estabilidade e proteção."
-    elif media <= 9.0:
-        return "PR 4 - Macia", "#f57c00", "Limite de fadiga; requer atenção."
+def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
+    if tipo_pista == "Pista de Competição":
+        # Ideal is Pista Firme 1 (4.0 to 5.0)
+        if media < 4.0:
+            return "Pista Dura (Baixo)", "#c62828", ""
+        elif media < 5.0:
+            return "Pista Firme 1 (Ideal)", "#2e7d32", ""
+        elif media < 7.0:
+            return "Pista Firme 2 (Alto)", "#c62828", ""
+        elif media <= 9.0:
+            return "Pista Macia (Alto)", "#c62828", ""
+        else:
+            return "Pista Pesada (Alto)", "#c62828", ""
     else:
-        return "PR 5 - Pesada", "#c62828", "Condição de solo profundo."
+        # Pista de Treinamento: Ideal is Pista Firme 2 (5.0 to 7.0)
+        if media < 4.0:
+            return "Pista Dura (Baixo)", "#c62828", ""
+        elif media < 5.0:
+            return "Pista Firme 1 (Baixo)", "#c62828", ""
+        elif media < 7.0:
+            return "Pista Firme 2 (Ideal)", "#2e7d32", ""
+        elif media <= 9.0:
+            return "Pista Macia (Alto)", "#c62828", ""
+        else:
+            return "Pista Pesada (Alto)", "#c62828", ""
