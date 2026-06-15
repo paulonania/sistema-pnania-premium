@@ -43,13 +43,13 @@ def test_risco_biomecanico():
     assert stats_a["fases"][0]["status"] == "IDEAL", f"Impacto Status: {stats_a['fases'][0]['status']}"
     assert stats_a["fases"][1]["status"] == "IDEAL"
     assert stats_a["fases"][2]["status"] == "IDEAL"
-    assert stats_a["geral_status"] == "IDEAL", f"Overall Status: {stats_a['geral_status']}"
+    assert stats_a["geral_status"] == "PR 4 - FIRME 2", f"Overall Status: {stats_a['geral_status']}"
 
     # Case B: At least one ALERTA, no CRÍTICO
     # Impacto: mean 2.8 -> ALERTA
     # Suporte: mean 6.0 -> IDEAL
     # Tração: mean 8.0 -> IDEAL
-    # Overall: ALERTA (worst of ALERTA, IDEAL, IDEAL)
+    # Overall: PR 4 - FIRME 2 (since average is 5.6)
     df_b = pd.DataFrame({
         "Linha": [1]*10,
         "Ponto": list(range(1, 11)),
@@ -63,13 +63,13 @@ def test_risco_biomecanico():
     assert stats_b["fases"][0]["status"] == "ALERTA", f"Impacto Status: {stats_b['fases'][0]['status']}"
     assert stats_b["fases"][1]["status"] == "IDEAL"
     assert stats_b["fases"][2]["status"] == "IDEAL"
-    assert stats_b["geral_status"] == "ALERTA", f"Overall Status: {stats_b['geral_status']}"
+    assert stats_b["geral_status"] == "PR 4 - FIRME 2", f"Overall Status: {stats_b['geral_status']}"
 
     # Case C: At least one CRÍTICO
     # Impacto: mean 1.5 -> CRÍTICO
     # Suporte: mean 6.0 -> IDEAL
     # Tração: mean 6.8 -> ALERTA
-    # Overall: CRÍTICO (worst of CRÍTICO, IDEAL, ALERTA)
+    # Overall: PR 3 - FIRME 1 (since average is 4.76)
     df_c = pd.DataFrame({
         "Linha": [1]*10,
         "Ponto": list(range(1, 11)),
@@ -83,7 +83,7 @@ def test_risco_biomecanico():
     assert stats_c["fases"][0]["status"] == "CRÍTICO", f"Impacto Status: {stats_c['fases'][0]['status']}"
     assert stats_c["fases"][1]["status"] == "IDEAL"
     assert stats_c["fases"][2]["status"] == "ALERTA"
-    assert stats_c["geral_status"] == "CRÍTICO", f"Overall Status: {stats_c['geral_status']}"
+    assert stats_c["geral_status"] == "PR 3 - FIRME 1", f"Overall Status: {stats_c['geral_status']}"
 
     # Test supporting sensors classifications (keep from previous desvio_absoluto tests)
     # Umidade (Center 18.0): Exc <= 0.5, Boa <= 1.5, Alerta <= 3.0, Crítica > 3.0
@@ -175,56 +175,62 @@ def test_diagnostico_perfil():
     print("Testing Block 1: Diagnóstico de Perfil...")
     
     # --- Pista de Treinamento ---
-    # PR 1 (< 3.0)
+    # Muito Dura (< 3.0)
     lbl, color, app = classificar_perfil(2.5, "Pista de Treinamento")
-    assert lbl == "Pista Muito Dura | BOM" and color == "#c62828", f"Treinamento PR 1 error: {lbl}, {color}"
-    # PR 2 (3.0 <= media < 4.0)
+    assert lbl == "PR 1 - MUITO DURA" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Muito Dura error: {lbl}, {color}, {app}"
+    # Dura (3.0 <= media < 4.0)
     lbl, color, app = classificar_perfil(3.5, "Pista de Treinamento")
-    assert lbl == "Pista Dura | BOM" and color == "#c62828", f"Treinamento PR 2 error: {lbl}, {color}"
-    # PR 3 (4.0 <= media < 5.0)
+    assert lbl == "PR 2 - DURA" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Dura error: {lbl}, {color}, {app}"
+    # Firme 1 (4.0 <= media < 5.0)
     lbl, color, app = classificar_perfil(4.5, "Pista de Treinamento")
-    assert lbl == "Pista Firme 1 | BOM" and color == "#f57c00", f"Treinamento PR 3 error: {lbl}, {color}"
-    # PR 4 (Ótimo: 5.50 <= media <= 6.00)
+    assert lbl == "PR 3 - FIRME 1" and color == "#f57c00" and app == "SATISFATORIA", f"Treinamento Firme 1 error: {lbl}, {color}, {app}"
+    # Firme 2 (5.0 <= media < 6.5)
     lbl, color, app = classificar_perfil(5.8, "Pista de Treinamento")
-    assert lbl == "Pista Firme 2 | ÓTIMO" and color == "#2e7d32", f"Treinamento PR 4 error: {lbl}, {color}"
-    # PR 4 (Bom: border 5.00 - 5.49)
+    assert lbl == "PR 4 - FIRME 2" and color == "#2e7d32" and app == "ÓTIMO", f"Treinamento Firme 2 Ótimo error: {lbl}, {color}, {app}"
+    # Firme 2 border low
     lbl, color, app = classificar_perfil(5.1, "Pista de Treinamento")
-    assert lbl == "Pista Firme 2 | BOM" and color == "#2e7d32", f"Treinamento PR 4 border low error: {lbl}, {color}"
-    # PR 4 (Bom: border 6.01 - 6.50)
+    assert lbl == "PR 4 - FIRME 2" and color == "#2e7d32" and app == "BOM", f"Treinamento Firme 2 Bom border low error: {lbl}, {color}, {app}"
+    # Firme 2 border high
     lbl, color, app = classificar_perfil(6.4, "Pista de Treinamento")
-    assert lbl == "Pista Firme 2 | BOM" and color == "#2e7d32", f"Treinamento PR 4 border high error: {lbl}, {color}"
-    # PR 5 (6.5 <= media < 7.0)
+    assert lbl == "PR 4 - FIRME 2" and color == "#2e7d32" and app == "BOM", f"Treinamento Firme 2 Bom border high error: {lbl}, {color}, {app}"
+    # Macia 1 (6.5 <= media < 8.0)
     lbl, color, app = classificar_perfil(6.8, "Pista de Treinamento")
-    assert lbl == "Pista Macia 1 | BOM" and color == "#f57c00", f"Treinamento PR 5 error: {lbl}, {color}"
-    # PR 6 (7.0 <= media < 8.0)
+    assert lbl == "PR 5 - MACIA 1" and color == "#f57c00" and app == "Satisfatorio", f"Treinamento Macia 1 error: {lbl}, {color}, {app}"
+    # Macia 1 border high (7.5)
     lbl, color, app = classificar_perfil(7.5, "Pista de Treinamento")
-    assert lbl == "Pista Macia 2 | BOM" and color == "#c62828", f"Treinamento PR 6 error: {lbl}, {color}"
-    # PR 7 (media >= 8.0)
+    assert lbl == "PR 5 - MACIA 1" and color == "#f57c00" and app == "Satisfatorio", f"Treinamento Macia 1 high error: {lbl}, {color}, {app}"
+    # Macia 2 (8.0 <= media < 9.0)
     lbl, color, app = classificar_perfil(8.5, "Pista de Treinamento")
-    assert lbl == "Pista Pesada | BOM" and color == "#c62828", f"Treinamento PR 7 error: {lbl}, {color}"
+    assert lbl == "PR 6 - MACIA 2" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Macia 2 error: {lbl}, {color}, {app}"
+    # Pesada (media >= 9.0)
+    lbl, color, app = classificar_perfil(9.5, "Pista de Treinamento")
+    assert lbl == "PR 7 - PESADA" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Pesada error: {lbl}, {color}, {app}"
 
     # --- Pista de Competição ---
-    # PR 1
+    # Muito Dura
     lbl, color, app = classificar_perfil(2.5, "Pista de Competição")
-    assert lbl == "Pista Muito Dura | BOM" and color == "#c62828", f"Competição PR 1 error: {lbl}, {color}"
-    # PR 2
+    assert lbl == "PR 1 - MUITO DURA" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Muito Dura error: {lbl}, {color}, {app}"
+    # Dura
     lbl, color, app = classificar_perfil(3.5, "Pista de Competição")
-    assert lbl == "Pista Dura | BOM" and color == "#f57c00", f"Competição PR 2 error: {lbl}, {color}"
-    # PR 3 (Ideal/Alvo: PR 3)
+    assert lbl == "PR 2 - DURA" and color == "#f57c00" and app == "SATISFATORIA", f"Competição Dura error: {lbl}, {color}, {app}"
+    # Firme 1
     lbl, color, app = classificar_perfil(4.5, "Pista de Competição")
-    assert lbl == "Pista Firme 1 | ÓTIMO" and color == "#2e7d32", f"Competição PR 3 error: {lbl}, {color}"
-    # PR 4 (Ótimo: 5.50 <= media <= 6.00)
+    assert lbl == "PR 3 - FIRME 1" and color == "#2e7d32" and app == "OTIMO", f"Competição Firme 1 error: {lbl}, {color}, {app}"
+    # Firme 2
     lbl, color, app = classificar_perfil(5.8, "Pista de Competição")
-    assert lbl == "Pista Firme 2 | ÓTIMO" and color == "#2e7d32", f"Competição PR 4 error: {lbl}, {color}"
-    # PR 5
+    assert lbl == "PR 4 - FIRME 2" and color == "#2e7d32" and app == "SATISFATORIA", f"Competição Firme 2 error: {lbl}, {color}, {app}"
+    # Macia 1
     lbl, color, app = classificar_perfil(6.8, "Pista de Competição")
-    assert lbl == "Pista Macia 1 | BOM" and color == "#c62828", f"Competição PR 5 error: {lbl}, {color}"
-    # PR 6
+    assert lbl == "PR 5 - MACIA 1" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Macia 1 error: {lbl}, {color}, {app}"
+    # Macia 1 border high
     lbl, color, app = classificar_perfil(7.5, "Pista de Competição")
-    assert lbl == "Pista Macia 2 | BOM" and color == "#c62828", f"Competição PR 6 error: {lbl}, {color}"
-    # PR 7
+    assert lbl == "PR 5 - MACIA 1" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Macia 1 high error: {lbl}, {color}, {app}"
+    # Macia 2
     lbl, color, app = classificar_perfil(8.5, "Pista de Competição")
-    assert lbl == "Pista Pesada | BOM" and color == "#c62828", f"Competição PR 7 error: {lbl}, {color}"
+    assert lbl == "PR 6 - MACIA 2" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Macia 2 error: {lbl}, {color}, {app}"
+    # Pesada
+    lbl, color, app = classificar_perfil(9.5, "Pista de Competição")
+    assert lbl == "PR 7 - PESADA" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Pesada error: {lbl}, {color}, {app}"
 
 
 def test_pista_competicao():
@@ -249,7 +255,7 @@ def test_pista_competicao():
     assert stats["fases"][0]["status"] == "IDEAL", f"Impacto Status: {stats['fases'][0]['status']}"
     assert stats["fases"][1]["status"] == "IDEAL", f"Suporte Status: {stats['fases'][1]['status']}"
     assert stats["fases"][2]["status"] == "IDEAL", f"Tração Status: {stats['fases'][2]['status']}"
-    assert stats["geral_status"] == "IDEAL", f"Overall Status: {stats['geral_status']}"
+    assert stats["geral_status"] == "PR 3 - FIRME 1", f"Overall Status: {stats['geral_status']}"
 
     # Test failure counts with value out of range for Competição (e.g. 4.5 in 1ª queda)
     df_fail = pd.DataFrame({

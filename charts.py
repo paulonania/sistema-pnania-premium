@@ -60,23 +60,17 @@ def fig_penetrometro(df, meta, stats):
     ax.grid(axis="y", linestyle=":", alpha=0.5, color="#cccccc")
 
     media_fases = sum(stats["medicao_atual"]) / 3
-    rotulo_perfil, _, _ = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
+    rotulo_perfil, _, desc_perfil = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
 
     pista = meta.get("pista", "")
     data = meta.get("data", "")
-    parts = rotulo_perfil.split(" | ")
-    pr_classificacao = parts[0] if len(parts) > 0 else rotulo_perfil
-    
-    if "Firme 2" in pr_classificacao:
-        if 5.50 <= media_fases <= 6.00:
-            status_qualidade = "ÓTIMO"
-        else:
-            status_qualidade = "BOM"
-    else:
-        status_qualidade = parts[1] if len(parts) > 1 else "BOM"
+
+    title_str = f"{pista} | {data} | {rotulo_perfil}"
+    if desc_perfil:
+        title_str += f" | {desc_perfil}"
 
     plt.title(
-        f"{pista} | {data} | {pr_classificacao} | {status_qualidade}",
+        title_str,
         fontsize=11,
         pad=15,
         fontweight="bold",

@@ -80,7 +80,6 @@ def calcular_estatisticas(df, meta):
 
     total_falhas = q1_falhas + q2_falhas + q3_falhas
     total_medicoes = 3 * n_pontos
-
     if n_pontos == 0:
         q1_status, q1_cor = "IDEAL", "#2e7d32"
         q2_status, q2_cor = "IDEAL", "#2e7d32"
@@ -112,14 +111,12 @@ def calcular_estatisticas(df, meta):
         else:
             q3_status, q3_cor = "CRÍTICO", "#c62828"
 
-        # Consolidação Geral (Regra de Pior Caso)
+        # Consolidação Geral (Baseado no resultado do penetrômetro geral)
         risco_geral = (total_falhas / total_medicoes * 100)
-        if q1_status == "CRÍTICO" or q2_status == "CRÍTICO" or q3_status == "CRÍTICO":
-            geral_status, geral_cor = "CRÍTICO", "#c62828"
-        elif q1_status == "ALERTA" or q2_status == "ALERTA" or q3_status == "ALERTA":
-            geral_status, geral_cor = "ALERTA", "#f57c00"
-        else:
-            geral_status, geral_cor = "IDEAL", "#2e7d32"
+        media_fases = (med_amort + med_trans + med_sup) / 3
+        rotulo_perfil, cor_perfil, _ = classificar_perfil(media_fases, tipo_pista)
+        geral_status = rotulo_perfil
+        geral_cor = cor_perfil
 
     io_amort = calcular_io(df["1ª Queda"])
     io_trans = calcular_io(df["2ª Queda"])
@@ -322,40 +319,35 @@ def classificar_espessura_valor(valor_medido, ideal_str):
 
 def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
     if tipo_pista == "Pista de Competição":
-        # Target is PR 3: Pista Firme 1 (4.0 <= media < 5.0)
         if media < 3.0:
-            return "Pista Muito Dura | BOM", "#c62828", ""
+            return "PR 1 - MUITO DURA", "#c62828", "NÃO SATISFATORIA"
         elif media < 4.0:
-            return "Pista Dura | BOM", "#f57c00", ""
+            return "PR 2 - DURA", "#f57c00", "SATISFATORIA"
         elif media < 5.0:
-            return "Pista Firme 1 | ÓTIMO", "#2e7d32", ""
+            return "PR 3 - FIRME 1", "#2e7d32", "OTIMO"
         elif media < 6.5:
-            if 5.50 <= media <= 6.00:
-                return "Pista Firme 2 | ÓTIMO", "#2e7d32", ""
-            else:
-                return "Pista Firme 2 | BOM", "#2e7d32", ""
-        elif media < 7.0:
-            return "Pista Macia 1 | BOM", "#c62828", ""
+            return "PR 4 - FIRME 2", "#2e7d32", "SATISFATORIA"
         elif media < 8.0:
-            return "Pista Macia 2 | BOM", "#c62828", ""
+            return "PR 5 - MACIA 1", "#c62828", "NÃO SATISFATORIA"
+        elif media < 9.0:
+            return "PR 6 - MACIA 2", "#c62828", "NÃO SATISFATORIA"
         else:
-            return "Pista Pesada | BOM", "#c62828", ""
+            return "PR 7 - PESADA", "#c62828", "NÃO SATISFATORIA"
     else:
-        # Pista de Treinamento: Target is PR 4: Pista Firme 2 (5.0 <= media < 6.5)
         if media < 3.0:
-            return "Pista Muito Dura | BOM", "#c62828", ""
+            return "PR 1 - MUITO DURA", "#c62828", "NÃO SATISFATORIA"
         elif media < 4.0:
-            return "Pista Dura | BOM", "#c62828", ""
+            return "PR 2 - DURA", "#c62828", "NÃO SATISFATORIA"
         elif media < 5.0:
-            return "Pista Firme 1 | BOM", "#f57c00", ""
+            return "PR 3 - FIRME 1", "#f57c00", "SATISFATORIA"
         elif media < 6.5:
             if 5.50 <= media <= 6.00:
-                return "Pista Firme 2 | ÓTIMO", "#2e7d32", ""
+                return "PR 4 - FIRME 2", "#2e7d32", "ÓTIMO"
             else:
-                return "Pista Firme 2 | BOM", "#2e7d32", ""
-        elif media < 7.0:
-            return "Pista Macia 1 | BOM", "#f57c00", ""
+                return "PR 4 - FIRME 2", "#2e7d32", "BOM"
         elif media < 8.0:
-            return "Pista Macia 2 | BOM", "#c62828", ""
+            return "PR 5 - MACIA 1", "#f57c00", "Satisfatorio"
+        elif media < 9.0:
+            return "PR 6 - MACIA 2", "#c62828", "NÃO SATISFATORIA"
         else:
-            return "Pista Pesada | BOM", "#c62828", ""
+            return "PR 7 - PESADA", "#c62828", "NÃO SATISFATORIA"

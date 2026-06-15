@@ -442,9 +442,10 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
 
     media_fases = 0.0
     rotulo_perfil = "N/A"
+    desc_perfil = ""
     if stats is not None:
         media_fases = sum(stats["medicao_atual"]) / 3
-        rotulo_perfil, _, _ = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
+        rotulo_perfil, _, desc_perfil = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
 
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -453,10 +454,12 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
     pdf.add_page()
     _adicionar_logo(pdf)
 
-    # Cabeçalho do Laudo no formato estrito: [Nome da Pista] | [Data] | [PR X - NOME TÉCNICO] | [ÓTIMO ou BOM]
+    # Cabeçalho do Laudo no formato estrito: [Nome do Picadeiro] | [Data] | [Classificação PR] | [STATUS]
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(15, 58, 97)
     header_laudo = f"{meta['pista']} | {meta['data']} | {rotulo_perfil}"
+    if desc_perfil:
+        header_laudo += f" | {desc_perfil}"
     pdf.cell(0, 8, _texto_latin(header_laudo), ln=True, align="C")
     pdf.ln(1)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
@@ -532,6 +535,8 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         pdf.set_font("Helvetica", "B", 11)
         pdf.set_text_color(15, 58, 97)
         header_laudo = f"{meta['pista']} | {meta['data']} | {rotulo_perfil}"
+        if desc_perfil:
+            header_laudo += f" | {desc_perfil}"
         pdf.cell(0, 8, _texto_latin(header_laudo), ln=True, align="C")
         pdf.ln(1)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
@@ -627,6 +632,8 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         pdf.set_font("Helvetica", "B", 11)
         pdf.set_text_color(15, 58, 97)
         header_laudo = f"{meta['pista']} | {meta['data']} | {rotulo_perfil}"
+        if desc_perfil:
+            header_laudo += f" | {desc_perfil}"
         pdf.cell(0, 8, _texto_latin(header_laudo), ln=True, align="C")
         pdf.ln(1)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
@@ -659,9 +666,9 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
             ("3,0 a 4,0", "Pista Dura"),
             ("4,0 a 5,0", "Pista Firme 1"),
             ("5,0 a 6,5", "Pista Firme 2"),
-            ("6,5 a 7,0", "Pista Macia 1"),
-            ("7,0 a 8,0", "Pista Macia 2"),
-            ("Acima de 8,0", "Pista Pesada"),
+            ("6,5 a 8,0", "Pista Macia 1"),
+            ("8,0 a 9,0", "Pista Macia 2"),
+            ("Acima de 9,0", "Pista Pesada"),
         ]
         
         pdf.set_font("Helvetica", "", 9)
