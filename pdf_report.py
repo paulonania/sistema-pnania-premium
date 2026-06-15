@@ -440,6 +440,12 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
             except Exception:
                 pass
 
+    media_fases = 0.0
+    rotulo_perfil = "N/A"
+    if stats is not None:
+        media_fases = sum(stats["medicao_atual"]) / 3
+        rotulo_perfil, _, _ = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
+
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=15)
     
@@ -447,12 +453,12 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
     pdf.add_page()
     _adicionar_logo(pdf)
 
-    pdf.set_font("Helvetica", "B", 18)
+    # Cabeçalho do Laudo no formato estrito: [Nome da Pista] | [Data] | [PR X - NOME TÉCNICO] | [ÓTIMO ou BOM]
+    pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(15, 58, 97)
-    
-    titulo_principal = "RELATÓRIO DE DIAGNÓSTICO" if apenas_tabelas else "RELATÓRIO DE DESEMPENHO"
-    pdf.cell(0, 12, _texto_latin(titulo_principal), ln=True, align="C")
-    pdf.ln(2)
+    header_laudo = f"{meta['pista']} | {meta['data']} | {rotulo_perfil}"
+    pdf.cell(0, 8, _texto_latin(header_laudo), ln=True, align="C")
+    pdf.ln(1)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.set_y(pdf.get_y() + 4)
 
@@ -522,6 +528,12 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         # Modo Completo: Página 2 contém Parecer Técnico (letra maior) e Gráficos de Análise
         pdf.add_page()
         _adicionar_logo(pdf, largura=45)
+        
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_text_color(15, 58, 97)
+        header_laudo = f"{meta['pista']} | {meta['data']} | {rotulo_perfil}"
+        pdf.cell(0, 8, _texto_latin(header_laudo), ln=True, align="C")
+        pdf.ln(1)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.set_y(pdf.get_y() + 4)
 
@@ -611,6 +623,12 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         # --- Página 3: Referência Técnica / Classificação da Pista ---
         pdf.add_page()
         _adicionar_logo(pdf, largura=45)
+        
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_text_color(15, 58, 97)
+        header_laudo = f"{meta['pista']} | {meta['data']} | {rotulo_perfil}"
+        pdf.cell(0, 8, _texto_latin(header_laudo), ln=True, align="C")
+        pdf.ln(1)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.set_y(pdf.get_y() + 4)
 
@@ -637,13 +655,13 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
 
         # Linhas da tabela
         linhas = [
-            ("Abaixo de 3,0", "Pista Muito Dura"),
-            ("3,0 a 4,0", "Pista Dura"),
-            ("4,0 a 5,0", "Pista Firme 1 (Competição)"),
-            ("5,0 a 6,5", "Pista Firme 2 (Treinamento)"),
-            ("6,5 a 8,0", "Pista Macia 1"),
-            ("8,0 a 9,0", "Pista Macia 2"),
-            ("Acima de 9,0", "Pista Pesada"),
+            ("Abaixo de 3,0", "PR 1 - MUITO DURA"),
+            ("3,0 a 4,0", "PR 2 - DURA"),
+            ("4,0 a 5,0", "PR 3 - FIRME 1"),
+            ("5,0 a 6,5", "PR 4 - FIRME 2"),
+            ("6,5 a 7,0", "PR 5 - MACIA 1"),
+            ("7,0 a 8,0", "PR 6 - MACIA 2"),
+            ("Acima de 8,0", "PR 7 - PESADA"),
         ]
         
         pdf.set_font("Helvetica", "", 9)

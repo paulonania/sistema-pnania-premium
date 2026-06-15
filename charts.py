@@ -62,17 +62,29 @@ def fig_penetrometro(df, meta, stats):
     media_fases = sum(stats["medicao_atual"]) / 3
     rotulo_perfil, _, _ = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
 
-    plt.suptitle("ÍNDICE DE PENETRÔMETRO", fontsize=13, fontweight="bold", color="#0f3a61", y=0.98)
+    pista = meta.get("pista", "")
+    data = meta.get("data", "")
+    parts = rotulo_perfil.split(" | ")
+    pr_classificacao = parts[0] if len(parts) > 0 else rotulo_perfil
+    
+    if "PR 4" in pr_classificacao:
+        if 5.50 <= media_fases <= 6.00:
+            status_qualidade = "ÓTIMO"
+        else:
+            status_qualidade = "BOM"
+    else:
+        status_qualidade = parts[1] if len(parts) > 1 else "BOM"
+
     plt.title(
-        f"{meta['fazenda']} — {meta['pista']} — {meta['data']}\nPenetrômetro Geral: {media_fases:.1f} cm | {rotulo_perfil}",
-        fontsize=10.5,
-        pad=12,
+        f"{pista} | {data} | {pr_classificacao} | {status_qualidade}",
+        fontsize=11,
+        pad=15,
         fontweight="bold",
         color="#0f3a61",
     )
     ax.legend(loc="upper left", frameon=True, facecolor="white", edgecolor="#e0e0e0", fontsize=9)
 
-    plt.subplots_adjust(bottom=0.12, top=0.85)
+    plt.subplots_adjust(bottom=0.12, top=0.90)
     return fig
 
 
