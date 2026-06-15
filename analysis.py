@@ -324,35 +324,38 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
     if tipo_pista == "Pista de Competição":
         # Target (Ideal - Muito bom a ótimo) is PR 3: Pista Firme 1 (4.0 <= media < 5.0)
         if media < 3.0:
-            return "Pista Muito Dura (Inadequada)", "#c62828", ""
+            return "PR 1 - MUITO DURA | Status: INADEQUADA", "#c62828", ""
         elif media < 4.0:
-            return "Pista Dura (Satisfatória)", "#f57c00", ""
+            return "PR 2 - DURA | Status: SATISFATÓRIA", "#f57c00", ""
         elif media < 5.0:
-            return "Pista Firme 1 (Muito bom a ótimo)", "#2e7d32", ""
+            return "PR 3 - FIRME 1 | Status: MUITO BOM A ÓTIMO", "#2e7d32", ""
         elif media < 6.5:
-            return "Pista Firme 2 (Satisfatória)", "#f57c00", ""
+            if 5.3 <= media <= 6.2:
+                return "PR 4 - FIRME 2 | Status: ÓTIMO", "#2e7d32", ""
+            else:
+                return "PR 4 - FIRME 2 | Status: BOM", "#f57c00", ""
         elif media < 8.0:
-            return "Pista Macia 1 (Inadequada)", "#c62828", ""
+            return "PR 5 - MACIA 1 | Status: INADEQUADA", "#c62828", ""
         elif media < 9.0:
-            return "Pista Macia 2 (Inadequada)", "#c62828", ""
+            return "PR 6 - MACIA 2 | Status: INADEQUADA", "#c62828", ""
         else:
-            return "Pista Pesada (Inadequada)", "#c62828", ""
+            return "PR 7 - PESADA | Status: INADEQUADA", "#c62828", ""
     else:
         # Pista de Treinamento: Target (Ideal - Muito bom a ótimo) is PR 4: Pista Firme 2 (5.0 <= media < 6.5)
         if media < 3.0:
-            return "Pista Muito Dura (Inadequada)", "#c62828", ""
+            return "PR 1 - MUITO DURA | Status: INADEQUADA", "#c62828", ""
         elif media < 4.0:
-            return "Pista Dura (Inadequada)", "#c62828", ""
+            return "PR 2 - DURA | Status: INADEQUADA", "#c62828", ""
         elif media < 5.0:
-            return "Pista Firme 1 (Satisfatória)", "#f57c00", ""
+            return "PR 3 - FIRME 1 | Status: SATISFATÓRIA", "#f57c00", ""
         elif media < 6.5:
             if 5.3 <= media <= 6.2:
-                return "Pista Firme 2 (Muito bom a ótimo)", "#2e7d32", ""
+                return "PR 4 - FIRME 2 | Status: ÓTIMO", "#2e7d32", ""
             else:
-                return "Pista Firme 2 (Satisfatória)", "#f57c00", ""
+                return "PR 4 - FIRME 2 | Status: BOM", "#f57c00", ""
         elif media < 8.0:
-            return "Pista Macia 1 (Satisfatória)", "#f57c00", ""
+            return "PR 5 - MACIA 1 | Status: SATISFATÓRIA", "#f57c00", ""
         elif media < 9.0:
-            return "Pista Macia 2 (Inadequada)", "#c62828", ""
+            return "PR 6 - MACIA 2 | Status: INADEQUADA", "#c62828", ""
         else:
-            return "Pista Pesada (Inadequada)", "#c62828", ""
+            return "PR 7 - PESADA | Status: INADEQUADA", "#c62828", ""
