@@ -333,7 +333,7 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
             if 5.50 <= media <= 6.00:
                 return "PR 4 - FIRME 2 | ÓTIMO", "#2e7d32", ""
             else:
-                return "PR 4 - FIRME 2 | BOM", "#f57c00", ""
+                return "PR 4 - FIRME 2 | BOM", "#2e7d32", ""
         elif media < 7.0:
             return "PR 5 - MACIA 1 | BOM", "#c62828", ""
         elif media < 8.0:
@@ -352,7 +352,7 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
             if 5.50 <= media <= 6.00:
                 return "PR 4 - FIRME 2 | ÓTIMO", "#2e7d32", ""
             else:
-                return "PR 4 - FIRME 2 | BOM", "#f57c00", ""
+                return "PR 4 - FIRME 2 | BOM", "#2e7d32", ""
         elif media < 7.0:
             return "PR 5 - MACIA 1 | BOM", "#f57c00", ""
         elif media < 8.0:

@@ -189,10 +189,10 @@ def test_diagnostico_perfil():
     assert lbl == "PR 4 - FIRME 2 | ÓTIMO" and color == "#2e7d32", f"Treinamento PR 4 error: {lbl}, {color}"
     # PR 4 (Bom: border 5.00 - 5.49)
     lbl, color, app = classificar_perfil(5.1, "Pista de Treinamento")
-    assert lbl == "PR 4 - FIRME 2 | BOM" and color == "#f57c00", f"Treinamento PR 4 border low error: {lbl}, {color}"
+    assert lbl == "PR 4 - FIRME 2 | BOM" and color == "#2e7d32", f"Treinamento PR 4 border low error: {lbl}, {color}"
     # PR 4 (Bom: border 6.01 - 6.50)
     lbl, color, app = classificar_perfil(6.4, "Pista de Treinamento")
-    assert lbl == "PR 4 - FIRME 2 | BOM" and color == "#f57c00", f"Treinamento PR 4 border high error: {lbl}, {color}"
+    assert lbl == "PR 4 - FIRME 2 | BOM" and color == "#2e7d32", f"Treinamento PR 4 border high error: {lbl}, {color}"
     # PR 5 (6.5 <= media < 7.0)
     lbl, color, app = classificar_perfil(6.8, "Pista de Treinamento")
     assert lbl == "PR 5 - MACIA 1 | BOM" and color == "#f57c00", f"Treinamento PR 5 error: {lbl}, {color}"
