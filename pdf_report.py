@@ -515,100 +515,99 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.set_font("Helvetica", "", 9.5)
                 pdf.multi_cell(0, 4.5, _texto_latin(meta["notas_parecer"]))
                 pdf.ln(2.5)
-
     else:
-        # Modo Completo - Página 2: Contém Parecer Técnico (se houver) e Gráficos de Análise
+        # Modo Completo - Página 2: Contém Gráficos de Análise com bom tamanho para visualização
         pdf.add_page()
         _adicionar_logo(pdf, largura=45)
         pdf.ln(2)
 
-        # 1. Parecer Técnico e Notas (Tamanho compactado para caber com gráficos)
-        if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
-            pdf.set_font("Helvetica", "B", 12)
-            pdf.set_text_color(15, 58, 97)
-            pdf.cell(0, 5, _texto_latin("Parecer Técnico e Notas"), ln=True)
-            pdf.ln(1)
-            pdf.set_text_color(50, 50, 50)
-            
-            if meta.get("notas_gerais"):
-                pdf.set_font("Helvetica", "B", 9.5)
-                pdf.cell(0, 4.5, _texto_latin("Observações Gerais:"), ln=True)
-                pdf.set_font("Helvetica", "", 9.5)
-                pdf.multi_cell(0, 4.0, _texto_latin(meta["notas_gerais"]))
-                pdf.ln(1.5)
-
-            if meta.get("notas_manejo"):
-                pdf.set_font("Helvetica", "B", 9.5)
-                pdf.cell(0, 4.5, _texto_latin("Manejo Recomendado:"), ln=True)
-                pdf.set_font("Helvetica", "", 9.5)
-                pdf.multi_cell(0, 4.0, _texto_latin(meta["notas_manejo"]))
-                pdf.ln(1.5)
-
-            if meta.get("notas_parecer"):
-                pdf.set_font("Helvetica", "B", 9.5)
-                pdf.cell(0, 4.5, _texto_latin("Parecer Técnico:"), ln=True)
-                pdf.set_font("Helvetica", "", 9.5)
-                pdf.multi_cell(0, 4.0, _texto_latin(meta["notas_parecer"]))
-                pdf.ln(1.5)
-            pdf.ln(1)
-
-        # 2. Gráficos de Análise
-        pdf.set_font("Helvetica", "B", 12)
+        # Gráficos de Análise
+        pdf.set_font("Helvetica", "B", 13)
         pdf.set_text_color(15, 58, 97)
-        pdf.cell(0, 5, _texto_latin("Gráficos de Análise"), ln=True)
-        pdf.ln(1)
+        pdf.cell(0, 6, _texto_latin("Gráficos de Análise"), ln=True)
+        pdf.ln(3)
 
-        # Gráfico do Penetrômetro (tamanho reduzido para caber na página 2)
+        # Gráfico do Penetrômetro (tamanho ampliado para melhor visualização na página 2)
         if fig_penetro is not None:
-            pdf.image(_fig_para_bytes(fig_penetro), x=67.5, w=75)
-            pdf.ln(2)
+            pdf.image(_fig_para_bytes(fig_penetro), x=45, w=120)
+            pdf.ln(4)
 
-        # Mapas de Calor (Espessura e Umidade) - tamanhos reduzidos
+        # Mapas de Calor (Espessura e Umidade)
         if fig_espessura is not None or fig_umidade is not None:
             y_before_images = pdf.get_y()
             if fig_espessura is not None and fig_umidade is not None:
-                # Plota lado a lado com tamanho menor (w=60)
-                pdf.image(_fig_para_bytes(fig_espessura), x=30, y=y_before_images, w=60)
-                pdf.image(_fig_para_bytes(fig_umidade), x=120, y=y_before_images, w=60)
+                # Plota lado a lado para manter a visualização rica e limpa
+                pdf.image(_fig_para_bytes(fig_espessura), x=15, y=y_before_images, w=85)
+                pdf.image(_fig_para_bytes(fig_umidade), x=110, y=y_before_images, w=85)
                 
                 # Legenda de CV da Espessura
                 label_esp_cv, _ = classificar_espessura(stats["io_espessura"])
-                pdf.set_xy(30, y_before_images + 37.5)
+                pdf.set_xy(15, y_before_images + 52.5)
                 pdf.set_font("Helvetica", "B", 8)
                 pdf.set_text_color(50, 50, 50)
-                pdf.cell(60, 4, _texto_latin(f"Coeficiente de Variação: {stats['io_espessura']:.1f}% ({label_esp_cv})"), border=0, align="C")
+                pdf.cell(85, 4, _texto_latin(f"Coeficiente de Variação: {stats['io_espessura']:.1f}% ({label_esp_cv})"), border=0, align="C")
                 
                 # Legenda de CV da Umidade
                 label_umi_cv, _ = classificar_umidade(stats["io_umidade"])
-                pdf.set_xy(120, y_before_images + 37.5)
+                pdf.set_xy(110, y_before_images + 52.5)
                 pdf.set_font("Helvetica", "B", 8)
-                pdf.cell(60, 4, _texto_latin(f"Coeficiente de Variação: {stats['io_umidade']:.1f}% ({label_umi_cv})"), border=0, align="C")
+                pdf.cell(85, 4, _texto_latin(f"Coeficiente de Variação: {stats['io_umidade']:.1f}% ({label_umi_cv})"), border=0, align="C")
                 
-                pdf.set_y(y_before_images + 43)
+                pdf.set_y(y_before_images + 58)
             else:
                 fig_active = fig_espessura if fig_espessura is not None else fig_umidade
-                pdf.image(_fig_para_bytes(fig_active), x=70, y=y_before_images, w=70)
+                pdf.image(_fig_para_bytes(fig_active), x=50, y=y_before_images, w=110)
                 
                 # Legenda de CV único
-                pdf.set_font("Helvetica", "B", 8)
+                pdf.set_font("Helvetica", "B", 8.5)
                 pdf.set_text_color(50, 50, 50)
                 if fig_espessura is not None:
                     label_esp_cv, _ = classificar_espessura(stats["io_espessura"])
                     txt_cv = f"Coeficiente de Variação: {stats['io_espessura']:.1f}% ({label_esp_cv})"
-                    h_img = 70 / 1.667
+                    h_img = 110 / 1.667
                 else:
                     label_umi_cv, _ = classificar_umidade(stats["io_umidade"])
                     txt_cv = f"Coeficiente de Variação: {stats['io_umidade']:.1f}% ({label_umi_cv})"
-                    h_img = 70 / 1.8
+                    h_img = 110 / 1.8
                 
-                pdf.set_xy(70, y_before_images + h_img + 1.5)
-                pdf.cell(70, 4, _texto_latin(txt_cv), border=0, align="C")
+                pdf.set_xy(50, y_before_images + h_img + 1.5)
+                pdf.cell(110, 4, _texto_latin(txt_cv), border=0, align="C")
                 pdf.set_y(y_before_images + h_img + 7)
 
-        # Modo Completo - Página 3: Apenas Referência Técnica (Classificação da Pista)
+        # Modo Completo - Página 3: Contém Parecer Técnico (no topo) e Referência Técnica (Classificação da Pista)
         pdf.add_page()
         _adicionar_logo(pdf, largura=45)
         pdf.ln(2)
+
+        # Parecer Técnico e Notas (caso preenchido)
+        if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
+            pdf.set_font("Helvetica", "B", 13)
+            pdf.set_text_color(15, 58, 97)
+            pdf.cell(0, 6, _texto_latin("Parecer Técnico e Notas"), ln=True)
+            pdf.ln(1.5)
+            pdf.set_text_color(50, 50, 50)
+            
+            if meta.get("notas_gerais"):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 5, _texto_latin("Observações Gerais:"), ln=True)
+                pdf.set_font("Helvetica", "", 10.5)
+                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_gerais"]))
+                pdf.ln(3)
+
+            if meta.get("notas_manejo"):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 5, _texto_latin("Manejo Recomendado:"), ln=True)
+                pdf.set_font("Helvetica", "", 10.5)
+                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_manejo"]))
+                pdf.ln(3)
+
+            if meta.get("notas_parecer"):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 5, _texto_latin("Parecer Técnico:"), ln=True)
+                pdf.set_font("Helvetica", "", 10.5)
+                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_parecer"]))
+                pdf.ln(3)
+            pdf.ln(4)
 
         # 1. Título da Seção: Classificação da Pista
         pdf.set_font("Helvetica", "B", 13)
