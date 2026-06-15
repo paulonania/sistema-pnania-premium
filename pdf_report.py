@@ -517,12 +517,42 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.ln(2.5)
 
     else:
-        # Modo Completo - Página 2: Contém apenas os Gráficos de Análise
+        # Modo Completo - Página 2: Contém Parecer Técnico (se houver) e Gráficos de Análise
         pdf.add_page()
         _adicionar_logo(pdf, largura=45)
         pdf.ln(2)
 
-        # 1. Gráficos de Análise
+        # 1. Parecer Técnico e Notas (Tamanho de letra ampliado)
+        if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
+            pdf.set_font("Helvetica", "B", 13)
+            pdf.set_text_color(15, 58, 97)
+            pdf.cell(0, 6, _texto_latin("Parecer Técnico e Notas"), ln=True)
+            pdf.ln(1.5)
+            pdf.set_text_color(50, 50, 50)
+            
+            if meta.get("notas_gerais"):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 5, _texto_latin("Observações Gerais:"), ln=True)
+                pdf.set_font("Helvetica", "", 10.5)
+                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_gerais"]))
+                pdf.ln(3)
+
+            if meta.get("notas_manejo"):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 5, _texto_latin("Manejo Recomendado:"), ln=True)
+                pdf.set_font("Helvetica", "", 10.5)
+                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_manejo"]))
+                pdf.ln(3)
+
+            if meta.get("notas_parecer"):
+                pdf.set_font("Helvetica", "B", 11)
+                pdf.cell(0, 5, _texto_latin("Parecer Técnico:"), ln=True)
+                pdf.set_font("Helvetica", "", 10.5)
+                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_parecer"]))
+                pdf.ln(3)
+            pdf.ln(2)
+
+        # 2. Gráficos de Análise
         pdf.set_font("Helvetica", "B", 13)
         pdf.set_text_color(15, 58, 97)
         pdf.cell(0, 6, _texto_latin("Gráficos de Análise"), ln=True)
@@ -573,42 +603,12 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.cell(110, 4, _texto_latin(txt_cv), border=0, align="C")
                 pdf.set_y(y_before_images + 73)
 
-        # Modo Completo - Página 3: Parecer Técnico e Notas + Referência Técnica (Classificação da Pista)
+        # Modo Completo - Página 3: Apenas Referência Técnica (Classificação da Pista)
         pdf.add_page()
         _adicionar_logo(pdf, largura=45)
         pdf.ln(2)
 
-        # 1. Parecer Técnico e Notas (Tamanho de letra ampliado)
-        if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
-            pdf.set_font("Helvetica", "B", 13)
-            pdf.set_text_color(15, 58, 97)
-            pdf.cell(0, 6, _texto_latin("Parecer Técnico e Notas"), ln=True)
-            pdf.ln(1.5)
-            pdf.set_text_color(50, 50, 50)
-            
-            if meta.get("notas_gerais"):
-                pdf.set_font("Helvetica", "B", 11)
-                pdf.cell(0, 5, _texto_latin("Observações Gerais:"), ln=True)
-                pdf.set_font("Helvetica", "", 10.5)
-                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_gerais"]))
-                pdf.ln(3)
-
-            if meta.get("notas_manejo"):
-                pdf.set_font("Helvetica", "B", 11)
-                pdf.cell(0, 5, _texto_latin("Manejo Recomendado:"), ln=True)
-                pdf.set_font("Helvetica", "", 10.5)
-                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_manejo"]))
-                pdf.ln(3)
-
-            if meta.get("notas_parecer"):
-                pdf.set_font("Helvetica", "B", 11)
-                pdf.cell(0, 5, _texto_latin("Parecer Técnico:"), ln=True)
-                pdf.set_font("Helvetica", "", 10.5)
-                pdf.multi_cell(0, 4.8, _texto_latin(meta["notas_parecer"]))
-                pdf.ln(3)
-            pdf.ln(2)
-
-        # 2. Título da Seção: Classificação da Pista
+        # 1. Título da Seção: Classificação da Pista
         pdf.set_font("Helvetica", "B", 13)
         pdf.set_text_color(15, 58, 97)
         pdf.cell(0, 6, _texto_latin("Classificação da Pista"), ln=True)
