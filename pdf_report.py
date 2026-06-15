@@ -640,10 +640,10 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
             ("Abaixo de 3,0", "Pista Muito Dura"),
             ("3,0 a 4,0", "Pista Dura"),
             ("4,0 a 5,0", "Pista Firme 1 (Competição)"),
-            ("5,0 a 6,0", "Pista Firme 2 (Treinamento)"),
-            ("6,0 a 7,0", "Pista Macia 1"),
-            ("7,0 a 8,0", "Pista Macia 2"),
-            ("Acima de 8,0", "Pista Pesada"),
+            ("5,0 a 6,5", "Pista Firme 2 (Treinamento)"),
+            ("6,5 a 8,0", "Pista Macia 1"),
+            ("8,0 a 9,0", "Pista Macia 2"),
+            ("Acima de 9,0", "Pista Pesada"),
         ]
         
         pdf.set_font("Helvetica", "", 9)

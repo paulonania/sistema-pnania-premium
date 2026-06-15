@@ -20,16 +20,16 @@ def test_risco_biomecanico():
     print("Testing Block 1: Average-based phase classification and worst-of consolidation...")
 
     # Case A: All phases IDEAL
-    # Impacto: mean 4.5 -> IDEAL
-    # Suporte: mean 5.5 -> IDEAL
-    # Tração: mean 6.5 -> IDEAL
+    # Impacto: mean 4.0 -> IDEAL
+    # Suporte: mean 6.0 -> IDEAL
+    # Tração: mean 8.0 -> IDEAL
     # Overall: IDEAL (worst of three IDEALs)
     df_a = pd.DataFrame({
         "Linha": [1]*10,
         "Ponto": list(range(1, 11)),
-        "1ª Queda": [4.5]*10,
-        "2ª Queda": [5.5]*10,
-        "3ª Queda": [6.5]*10,
+        "1ª Queda": [4.0]*10,
+        "2ª Queda": [6.0]*10,
+        "3ª Queda": [8.0]*10,
         "Umidade": [18.0]*10,
         "Espessura": [12]*10
     })
@@ -46,16 +46,16 @@ def test_risco_biomecanico():
     assert stats_a["geral_status"] == "IDEAL", f"Overall Status: {stats_a['geral_status']}"
 
     # Case B: At least one ALERTA, no CRÍTICO
-    # Impacto: mean 3.5 -> ALERTA
-    # Suporte: mean 5.5 -> IDEAL
-    # Tração: mean 6.5 -> IDEAL
+    # Impacto: mean 2.8 -> ALERTA
+    # Suporte: mean 6.0 -> IDEAL
+    # Tração: mean 8.0 -> IDEAL
     # Overall: ALERTA (worst of ALERTA, IDEAL, IDEAL)
     df_b = pd.DataFrame({
         "Linha": [1]*10,
         "Ponto": list(range(1, 11)),
-        "1ª Queda": [3.5]*10,
-        "2ª Queda": [5.5]*10,
-        "3ª Queda": [6.5]*10,
+        "1ª Queda": [2.8]*10,
+        "2ª Queda": [6.0]*10,
+        "3ª Queda": [8.0]*10,
         "Umidade": [18.0]*10,
         "Espessura": [12]*10
     })
@@ -66,16 +66,16 @@ def test_risco_biomecanico():
     assert stats_b["geral_status"] == "ALERTA", f"Overall Status: {stats_b['geral_status']}"
 
     # Case C: At least one CRÍTICO
-    # Impacto: mean 2.5 -> CRÍTICO
-    # Suporte: mean 5.5 -> IDEAL
-    # Tração: mean 5.5 -> ALERTA
+    # Impacto: mean 1.5 -> CRÍTICO
+    # Suporte: mean 6.0 -> IDEAL
+    # Tração: mean 6.8 -> ALERTA
     # Overall: CRÍTICO (worst of CRÍTICO, IDEAL, ALERTA)
     df_c = pd.DataFrame({
         "Linha": [1]*10,
         "Ponto": list(range(1, 11)),
-        "1ª Queda": [2.5]*10,
-        "2ª Queda": [5.5]*10,
-        "3ª Queda": [5.5]*10,
+        "1ª Queda": [1.5]*10,
+        "2ª Queda": [6.0]*10,
+        "3ª Queda": [6.8]*10,
         "Umidade": [18.0]*10,
         "Espessura": [12]*10
     })
@@ -191,10 +191,10 @@ def test_diagnostico_perfil():
     lbl, color, app = classificar_perfil(6.5, "Pista de Treinamento")
     assert lbl == "Pista Macia 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 5 error: {lbl}, {color}"
     # PR 6
-    lbl, color, app = classificar_perfil(7.5, "Pista de Treinamento")
+    lbl, color, app = classificar_perfil(8.5, "Pista de Treinamento")
     assert lbl == "Pista Macia 2 (Inadequada)" and color == "#c62828", f"Treinamento PR 6 error: {lbl}, {color}"
     # PR 7
-    lbl, color, app = classificar_perfil(8.5, "Pista de Treinamento")
+    lbl, color, app = classificar_perfil(9.5, "Pista de Treinamento")
     assert lbl == "Pista Pesada (Inadequada)" and color == "#c62828", f"Treinamento PR 7 error: {lbl}, {color}"
 
     # --- Pista de Competição (Ideal: 4.0 a 5.0) ---
@@ -214,10 +214,10 @@ def test_diagnostico_perfil():
     lbl, color, app = classificar_perfil(6.5, "Pista de Competição")
     assert lbl == "Pista Macia 1 (Inadequada)" and color == "#c62828", f"Competição PR 5 error: {lbl}, {color}"
     # PR 6
-    lbl, color, app = classificar_perfil(7.5, "Pista de Competição")
+    lbl, color, app = classificar_perfil(8.5, "Pista de Competição")
     assert lbl == "Pista Macia 2 (Inadequada)" and color == "#c62828", f"Competição PR 6 error: {lbl}, {color}"
     # PR 7
-    lbl, color, app = classificar_perfil(8.5, "Pista de Competição")
+    lbl, color, app = classificar_perfil(9.5, "Pista de Competição")
     assert lbl == "Pista Pesada (Inadequada)" and color == "#c62828", f"Competição PR 7 error: {lbl}, {color}"
 
 
@@ -261,29 +261,29 @@ def test_pista_competicao():
 
 def test_tracao_desvio_limite():
     print("Testing Block 6: Tração desvio limite (Treinamento)...")
-    # Tração in Treinamento (Center 6.5, Target 6-7):
-    # dev <= 0.25 (6.25 - 6.75): Excelente
-    # dev <= 0.5 (6.0 - 7.0): Boa
-    # dev <= 2.0 (4.5 - 8.5): Alerta
-    # dev > 2.0 (< 4.5 or > 8.5): Crítica
+    # Tração in Treinamento (Center 8.0, Target 7-9):
+    # dev <= 1.0 (7.0 - 9.0): Excelente / Boa
+    # dev <= 2.0 (6.0 - 10.0): Boa
+    # dev <= 3.5 (4.5 - 11.5): Alerta
+    # dev > 3.5 (< 4.5 or > 11.5): Crítica
 
-    lbl, color = classificar_desvio_fase(6.4, "Tração", "Pista de Treinamento")
-    assert lbl == "Excelente", f"Tração 6.4: {lbl}"
+    lbl, color = classificar_desvio_fase(8.5, "Tração", "Pista de Treinamento")
+    assert lbl == "Excelente", f"Tração 8.5: {lbl}"
 
-    lbl, color = classificar_desvio_fase(6.9, "Tração", "Pista de Treinamento")
-    assert lbl == "Boa", f"Tração 6.9: {lbl}"
+    lbl, color = classificar_desvio_fase(6.5, "Tração", "Pista de Treinamento")
+    assert lbl == "Boa", f"Tração 6.5: {lbl}"
 
-    lbl, color = classificar_desvio_fase(8.0, "Tração", "Pista de Treinamento")
-    assert lbl == "Alerta", f"Tração 8.0: {lbl}"
+    lbl, color = classificar_desvio_fase(5.5, "Tração", "Pista de Treinamento")
+    assert lbl == "Alerta", f"Tração 5.5: {lbl}"
 
-    lbl, color = classificar_desvio_fase(4.6, "Tração", "Pista de Treinamento")
-    assert lbl == "Alerta", f"Tração 4.6: {lbl}"
+    lbl, color = classificar_desvio_fase(11.0, "Tração", "Pista de Treinamento")
+    assert lbl == "Alerta", f"Tração 11.0: {lbl}"
 
-    lbl, color = classificar_desvio_fase(8.6, "Tração", "Pista de Treinamento")
-    assert lbl == "Crítica", f"Tração 8.6: {lbl}"
+    lbl, color = classificar_desvio_fase(4.0, "Tração", "Pista de Treinamento")
+    assert lbl == "Crítica", f"Tração 4.0: {lbl}"
 
-    lbl, color = classificar_desvio_fase(4.4, "Tração", "Pista de Treinamento")
-    assert lbl == "Crítica", f"Tração 4.4: {lbl}"
+    lbl, color = classificar_desvio_fase(12.0, "Tração", "Pista de Treinamento")
+    assert lbl == "Crítica", f"Tração 12.0: {lbl}"
 
 
 def main():

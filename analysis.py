@@ -50,12 +50,12 @@ def calcular_estatisticas(df, meta):
         ideal_q2 = "Alvo: 4.0 - 5.0 cm"
         ideal_q3 = "Alvo: 5.0 - 6.0 cm"
     else:
-        q1_min, q1_max = 4.0, 5.0
-        q2_min, q2_max = 5.0, 6.0
-        q3_min, q3_max = 6.0, 7.0
-        ideal_q1 = "Alvo: 4.0 - 5.0 cm"
-        ideal_q2 = "Alvo: 5.0 - 6.0 cm"
-        ideal_q3 = "Alvo: 6.0 - 7.0 cm"
+        q1_min, q1_max = 3.0, 5.0
+        q2_min, q2_max = 5.0, 7.0
+        q3_min, q3_max = 7.0, 9.0
+        ideal_q1 = "Alvo: 3.0 - 5.0 cm"
+        ideal_q2 = "Alvo: 5.0 - 7.0 cm"
+        ideal_q3 = "Alvo: 7.0 - 9.0 cm"
 
     # 1ª Queda (Impacto)
     col_q1 = df["1ª Queda"]
@@ -236,35 +236,35 @@ def classificar_desvio_fase(valor_medido, fase_nome, tipo_pista="Pista de Treina
             return "Excelente", "#2e7d32"
     else:
         if fase_nome == "Impacto":
-            center = 4.5
+            center = 4.0
             dev = abs(valor_medido - center)
-            if dev <= 0.25:
+            if dev <= 0.5:
                 return "Excelente", "#2e7d32"
-            elif dev <= 0.5:
+            elif dev <= 1.0:
                 return "Boa", "#2e7d32"
-            elif dev <= 1.5:
+            elif dev <= 2.0:
                 return "Alerta", "#f57c00"
             else:
                 return "Crítica", "#c62828"
         elif fase_nome == "Suporte":
-            center = 5.5
+            center = 6.0
             dev = abs(valor_medido - center)
-            if dev <= 0.25:
+            if dev <= 0.5:
                 return "Excelente", "#2e7d32"
-            elif dev <= 0.5:
-                return "Boa", "#2e7d32"
             elif dev <= 1.5:
+                return "Boa", "#2e7d32"
+            elif dev <= 2.5:
                 return "Alerta", "#f57c00"
             else:
                 return "Crítica", "#c62828"
         elif fase_nome == "Tração":
-            center = 6.5
+            center = 8.0
             dev = abs(valor_medido - center)
-            if dev <= 0.25:
+            if dev <= 1.0:
                 return "Excelente", "#2e7d32"
-            elif dev <= 0.5:
-                return "Boa", "#2e7d32"
             elif dev <= 2.0:
+                return "Boa", "#2e7d32"
+            elif dev <= 3.5:
                 return "Alerta", "#f57c00"
             else:
                 return "Crítica", "#c62828"
@@ -329,27 +329,27 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
             return "Pista Dura (Satisfatória)", "#f57c00", ""
         elif media < 5.0:
             return "Pista Firme 1 (Muito bom a ótimo)", "#2e7d32", ""
-        elif media < 6.0:
+        elif media < 6.5:
             return "Pista Firme 2 (Satisfatória)", "#f57c00", ""
-        elif media < 7.0:
-            return "Pista Macia 1 (Inadequada)", "#c62828", ""
         elif media < 8.0:
+            return "Pista Macia 1 (Inadequada)", "#c62828", ""
+        elif media < 9.0:
             return "Pista Macia 2 (Inadequada)", "#c62828", ""
         else:
             return "Pista Pesada (Inadequada)", "#c62828", ""
     else:
-        # Pista de Treinamento: Target (Ideal - Muito bom a ótimo) is PR 4: Pista Firme 2 (5.0 <= media < 6.0)
+        # Pista de Treinamento: Target (Ideal - Muito bom a ótimo) is PR 4: Pista Firme 2 (5.0 <= media < 6.5)
         if media < 3.0:
             return "Pista Muito Dura (Inadequada)", "#c62828", ""
         elif media < 4.0:
             return "Pista Dura (Inadequada)", "#c62828", ""
         elif media < 5.0:
             return "Pista Firme 1 (Satisfatória)", "#f57c00", ""
-        elif media < 6.0:
+        elif media < 6.5:
             return "Pista Firme 2 (Muito bom a ótimo)", "#2e7d32", ""
-        elif media < 7.0:
-            return "Pista Macia 1 (Satisfatória)", "#f57c00", ""
         elif media < 8.0:
+            return "Pista Macia 1 (Satisfatória)", "#f57c00", ""
+        elif media < 9.0:
             return "Pista Macia 2 (Inadequada)", "#c62828", ""
         else:
             return "Pista Pesada (Inadequada)", "#c62828", ""

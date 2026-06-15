@@ -13,8 +13,8 @@ def fig_penetrometro(df, meta, stats):
         verde_inf = [3.0, 4.0, 5.0]
         verde_sup = [4.0, 5.0, 6.0]
     else:
-        verde_inf = [4.0, 5.0, 6.0]
-        verde_sup = [5.0, 6.0, 7.0]
+        verde_inf = [3.0, 5.0, 7.0]
+        verde_sup = [5.0, 7.0, 9.0]
     medicao_atual = stats["medicao_atual"]
 
     max_valor = max(df["1ª Queda"].max(), df["2ª Queda"].max(), df["3ª Queda"].max())
@@ -129,8 +129,8 @@ def fig_comparativa(historico_dados, meta=None):
         verde_inf = [3.0, 4.0, 5.0]
         verde_sup = [4.0, 5.0, 6.0]
     else:
-        verde_inf = [4.0, 5.0, 6.0]
-        verde_sup = [5.0, 6.0, 7.0]
+        verde_inf = [3.0, 5.0, 7.0]
+        verde_sup = [5.0, 7.0, 9.0]
 
     max_valor = 10.0
     for item in historico_dados:
