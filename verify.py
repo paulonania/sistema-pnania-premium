@@ -184,9 +184,15 @@ def test_diagnostico_perfil():
     # PR 3
     lbl, color, app = classificar_perfil(4.5, "Pista de Treinamento")
     assert lbl == "Pista Firme 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 3 error: {lbl}, {color}"
-    # PR 4
+    # PR 4 (Ótimo)
     lbl, color, app = classificar_perfil(5.5, "Pista de Treinamento")
     assert lbl == "Pista Firme 2 (Muito bom a ótimo)" and color == "#2e7d32", f"Treinamento PR 4 error: {lbl}, {color}"
+    # PR 4 (Bom - border 5.0 - 5.2)
+    lbl, color, app = classificar_perfil(5.1, "Pista de Treinamento")
+    assert lbl == "Pista Firme 2 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 4 border low error: {lbl}, {color}"
+    # PR 4 (Bom - border 6.3 - 6.5)
+    lbl, color, app = classificar_perfil(6.4, "Pista de Treinamento")
+    assert lbl == "Pista Firme 2 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 4 border high error: {lbl}, {color}"
     # PR 5
     lbl, color, app = classificar_perfil(6.5, "Pista de Treinamento")
     assert lbl == "Pista Macia 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 5 error: {lbl}, {color}"

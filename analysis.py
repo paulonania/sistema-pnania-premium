@@ -346,7 +346,10 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
         elif media < 5.0:
             return "Pista Firme 1 (Satisfatória)", "#f57c00", ""
         elif media < 6.5:
-            return "Pista Firme 2 (Muito bom a ótimo)", "#2e7d32", ""
+            if 5.3 <= media <= 6.2:
+                return "Pista Firme 2 (Muito bom a ótimo)", "#2e7d32", ""
+            else:
+                return "Pista Firme 2 (Satisfatória)", "#f57c00", ""
         elif media < 8.0:
             return "Pista Macia 1 (Satisfatória)", "#f57c00", ""
         elif media < 9.0:
