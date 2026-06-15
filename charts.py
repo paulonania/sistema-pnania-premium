@@ -64,10 +64,14 @@ def fig_penetrometro(df, meta, stats):
 
     pista = meta.get("pista", "")
     data = meta.get("data", "")
+    fazenda = meta.get("fazenda", "")
 
-    title_str = f"{pista} | {data} | {rotulo_perfil}"
+    title_line1 = f"Índice do Penetrômetro - {fazenda}" if fazenda else "Índice do Penetrômetro"
+    title_line2 = f"{pista} | {data} | {rotulo_perfil}"
     if desc_perfil:
-        title_str += f" | {desc_perfil}"
+        title_line2 += f" | {desc_perfil}"
+
+    title_str = f"{title_line1}\n{title_line2}"
 
     plt.title(
         title_str,
