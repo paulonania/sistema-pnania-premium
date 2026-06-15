@@ -436,6 +436,7 @@ def render_resumo_cards(stats, meta, df):
         col_gen = st.columns([1.3, 1.4, 1.3])
         with col_gen[1]:
             media_fases = sum(stats["medicao_atual"]) / 3
+            # Force reload of classification modules
             rotulo_perfil, cor_perfil, desc_perfil = classificar_perfil(media_fases, meta.get("tipo_pista", "Pista de Treinamento"))
             st.markdown(
                 render_card_html_unificado(
