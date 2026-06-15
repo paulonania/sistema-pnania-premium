@@ -192,8 +192,8 @@ def test_diagnostico_perfil():
     assert lbl == "Pista Macia 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 5 error: {lbl}, {color}"
     # PR 6
     lbl, color, app = classificar_perfil(7.5, "Pista de Treinamento")
-    assert lbl == "Pista Macia 2 (Inadequada)" and color == "#c62828", f"Treinamento PR 6 error: {lbl}, {color}"
-    # PR 7
+    assert lbl == "Pista Macia 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 6 error: {lbl}, {color}"
+    # PR 7 (Pesada)
     lbl, color, app = classificar_perfil(8.5, "Pista de Treinamento")
     assert lbl == "Pista Pesada (Inadequada)" and color == "#c62828", f"Treinamento PR 7 error: {lbl}, {color}"
 
@@ -215,7 +215,7 @@ def test_diagnostico_perfil():
     assert lbl == "Pista Macia 1 (Inadequada)" and color == "#c62828", f"Competição PR 5 error: {lbl}, {color}"
     # PR 6
     lbl, color, app = classificar_perfil(7.5, "Pista de Competição")
-    assert lbl == "Pista Macia 2 (Inadequada)" and color == "#c62828", f"Competição PR 6 error: {lbl}, {color}"
+    assert lbl == "Pista Macia 1 (Inadequada)" and color == "#c62828", f"Competição PR 6 error: {lbl}, {color}"
     # PR 7
     lbl, color, app = classificar_perfil(8.5, "Pista de Competição")
     assert lbl == "Pista Pesada (Inadequada)" and color == "#c62828", f"Competição PR 7 error: {lbl}, {color}"

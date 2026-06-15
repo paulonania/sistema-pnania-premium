@@ -52,10 +52,10 @@ def calcular_estatisticas(df, meta):
     else:
         q1_min, q1_max = 4.0, 5.0
         q2_min, q2_max = 5.0, 6.0
-        q3_min, q3_max = 6.0, 7.0
+        q3_min, q3_max = 6.0, 8.0
         ideal_q1 = "Alvo: 4.0 - 5.0 cm"
         ideal_q2 = "Alvo: 5.0 - 6.0 cm"
-        ideal_q3 = "Alvo: 6.0 - 7.0 cm"
+        ideal_q3 = "Alvo: 6.0 - 8.0 cm"
 
     # 1ª Queda (Impacto)
     col_q1 = df["1ª Queda"]
@@ -258,7 +258,7 @@ def classificar_desvio_fase(valor_medido, fase_nome, tipo_pista="Pista de Treina
             else:
                 return "Crítica", "#c62828"
         elif fase_nome == "Tração":
-            center = 6.5
+            center = 7.0
             dev = abs(valor_medido - center)
             if dev <= 0.25:
                 return "Excelente", "#2e7d32"
@@ -329,27 +329,23 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
             return "Pista Dura (Satisfatória)", "#f57c00", ""
         elif media < 5.0:
             return "Pista Firme 1 (Muito bom a ótimo)", "#2e7d32", ""
-        elif media < 6.0:
+        elif media < 6.5:
             return "Pista Firme 2 (Satisfatória)", "#f57c00", ""
-        elif media < 7.0:
-            return "Pista Macia 1 (Inadequada)", "#c62828", ""
         elif media < 8.0:
-            return "Pista Macia 2 (Inadequada)", "#c62828", ""
+            return "Pista Macia 1 (Inadequada)", "#c62828", ""
         else:
             return "Pista Pesada (Inadequada)", "#c62828", ""
     else:
-        # Pista de Treinamento: Target (Ideal - Muito bom a ótimo) is PR 4: Pista Firme 2 (5.0 <= media < 6.0)
+        # Pista de Treinamento: Target (Ideal - Muito bom a ótimo) is PR 4: Pista Firme 2 (5.0 <= media < 6.5)
         if media < 3.0:
             return "Pista Muito Dura (Inadequada)", "#c62828", ""
         elif media < 4.0:
             return "Pista Dura (Inadequada)", "#c62828", ""
         elif media < 5.0:
             return "Pista Firme 1 (Satisfatória)", "#f57c00", ""
-        elif media < 6.0:
+        elif media < 6.5:
             return "Pista Firme 2 (Muito bom a ótimo)", "#2e7d32", ""
-        elif media < 7.0:
-            return "Pista Macia 1 (Satisfatória)", "#f57c00", ""
         elif media < 8.0:
-            return "Pista Macia 2 (Inadequada)", "#c62828", ""
+            return "Pista Macia 1 (Satisfatória)", "#f57c00", ""
         else:
             return "Pista Pesada (Inadequada)", "#c62828", ""
