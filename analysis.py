@@ -324,38 +324,38 @@ def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
     if tipo_pista == "Pista de Competição":
         # Target is PR 3: Pista Firme 1 (4.0 <= media < 5.0)
         if media < 3.0:
-            return "PR 1 - MUITO DURA | BOM", "#c62828", ""
+            return "Pista Muito Dura | BOM", "#c62828", ""
         elif media < 4.0:
-            return "PR 2 - DURA | BOM", "#f57c00", ""
+            return "Pista Dura | BOM", "#f57c00", ""
         elif media < 5.0:
-            return "PR 3 - FIRME 1 | ÓTIMO", "#2e7d32", ""
+            return "Pista Firme 1 | ÓTIMO", "#2e7d32", ""
         elif media < 6.5:
             if 5.50 <= media <= 6.00:
-                return "PR 4 - FIRME 2 | ÓTIMO", "#2e7d32", ""
+                return "Pista Firme 2 | ÓTIMO", "#2e7d32", ""
             else:
-                return "PR 4 - FIRME 2 | BOM", "#2e7d32", ""
+                return "Pista Firme 2 | BOM", "#2e7d32", ""
         elif media < 7.0:
-            return "PR 5 - MACIA 1 | BOM", "#c62828", ""
+            return "Pista Macia 1 | BOM", "#c62828", ""
         elif media < 8.0:
-            return "PR 6 - MACIA 2 | BOM", "#c62828", ""
+            return "Pista Macia 2 | BOM", "#c62828", ""
         else:
-            return "PR 7 - PESADA | BOM", "#c62828", ""
+            return "Pista Pesada | BOM", "#c62828", ""
     else:
         # Pista de Treinamento: Target is PR 4: Pista Firme 2 (5.0 <= media < 6.5)
         if media < 3.0:
-            return "PR 1 - MUITO DURA | BOM", "#c62828", ""
+            return "Pista Muito Dura | BOM", "#c62828", ""
         elif media < 4.0:
-            return "PR 2 - DURA | BOM", "#c62828", ""
+            return "Pista Dura | BOM", "#c62828", ""
         elif media < 5.0:
-            return "PR 3 - FIRME 1 | BOM", "#f57c00", ""
+            return "Pista Firme 1 | BOM", "#f57c00", ""
         elif media < 6.5:
             if 5.50 <= media <= 6.00:
-                return "PR 4 - FIRME 2 | ÓTIMO", "#2e7d32", ""
+                return "Pista Firme 2 | ÓTIMO", "#2e7d32", ""
             else:
-                return "PR 4 - FIRME 2 | BOM", "#2e7d32", ""
+                return "Pista Firme 2 | BOM", "#2e7d32", ""
         elif media < 7.0:
-            return "PR 5 - MACIA 1 | BOM", "#f57c00", ""
+            return "Pista Macia 1 | BOM", "#f57c00", ""
         elif media < 8.0:
-            return "PR 6 - MACIA 2 | BOM", "#c62828", ""
+            return "Pista Macia 2 | BOM", "#c62828", ""
         else:
-            return "PR 7 - PESADA | BOM", "#c62828", ""
+            return "Pista Pesada | BOM", "#c62828", ""

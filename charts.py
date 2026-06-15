@@ -67,7 +67,7 @@ def fig_penetrometro(df, meta, stats):
     parts = rotulo_perfil.split(" | ")
     pr_classificacao = parts[0] if len(parts) > 0 else rotulo_perfil
     
-    if "PR 4" in pr_classificacao:
+    if "Firme 2" in pr_classificacao:
         if 5.50 <= media_fases <= 6.00:
             status_qualidade = "ÓTIMO"
         else:
