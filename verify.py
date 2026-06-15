@@ -192,8 +192,8 @@ def test_diagnostico_perfil():
     assert lbl == "Pista Macia 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 5 error: {lbl}, {color}"
     # PR 6
     lbl, color, app = classificar_perfil(7.5, "Pista de Treinamento")
-    assert lbl == "Pista Macia 1 (Satisfatória)" and color == "#f57c00", f"Treinamento PR 6 error: {lbl}, {color}"
-    # PR 7 (Pesada)
+    assert lbl == "Pista Macia 2 (Inadequada)" and color == "#c62828", f"Treinamento PR 6 error: {lbl}, {color}"
+    # PR 7
     lbl, color, app = classificar_perfil(8.5, "Pista de Treinamento")
     assert lbl == "Pista Pesada (Inadequada)" and color == "#c62828", f"Treinamento PR 7 error: {lbl}, {color}"
 
@@ -215,7 +215,7 @@ def test_diagnostico_perfil():
     assert lbl == "Pista Macia 1 (Inadequada)" and color == "#c62828", f"Competição PR 5 error: {lbl}, {color}"
     # PR 6
     lbl, color, app = classificar_perfil(7.5, "Pista de Competição")
-    assert lbl == "Pista Macia 1 (Inadequada)" and color == "#c62828", f"Competição PR 6 error: {lbl}, {color}"
+    assert lbl == "Pista Macia 2 (Inadequada)" and color == "#c62828", f"Competição PR 6 error: {lbl}, {color}"
     # PR 7
     lbl, color, app = classificar_perfil(8.5, "Pista de Competição")
     assert lbl == "Pista Pesada (Inadequada)" and color == "#c62828", f"Competição PR 7 error: {lbl}, {color}"
@@ -259,12 +259,40 @@ def test_pista_competicao():
     assert stats_fail["fases"][0]["status"] == "ALERTA", f"Impacto Status Fail: {stats_fail['fases'][0]['status']}"
 
 
+def test_tracao_desvio_limite():
+    print("Testing Block 6: Tração desvio limite (Treinamento)...")
+    # Tração in Treinamento (Center 6.5, Target 6-7):
+    # dev <= 0.25 (6.25 - 6.75): Excelente
+    # dev <= 0.5 (6.0 - 7.0): Boa
+    # dev <= 2.0 (4.5 - 8.5): Alerta
+    # dev > 2.0 (< 4.5 or > 8.5): Crítica
+
+    lbl, color = classificar_desvio_fase(6.4, "Tração", "Pista de Treinamento")
+    assert lbl == "Excelente", f"Tração 6.4: {lbl}"
+
+    lbl, color = classificar_desvio_fase(6.9, "Tração", "Pista de Treinamento")
+    assert lbl == "Boa", f"Tração 6.9: {lbl}"
+
+    lbl, color = classificar_desvio_fase(8.0, "Tração", "Pista de Treinamento")
+    assert lbl == "Alerta", f"Tração 8.0: {lbl}"
+
+    lbl, color = classificar_desvio_fase(4.6, "Tração", "Pista de Treinamento")
+    assert lbl == "Alerta", f"Tração 4.6: {lbl}"
+
+    lbl, color = classificar_desvio_fase(8.6, "Tração", "Pista de Treinamento")
+    assert lbl == "Crítica", f"Tração 8.6: {lbl}"
+
+    lbl, color = classificar_desvio_fase(4.4, "Tração", "Pista de Treinamento")
+    assert lbl == "Crítica", f"Tração 4.4: {lbl}"
+
+
 def main():
     test_risco_biomecanico()
     test_regularidade_cv()
     test_icg_dinamico()
     test_diagnostico_perfil()
     test_pista_competicao()
+    test_tracao_desvio_limite()
     print("\nSUCCESS: All dashboard architecture logic and tests passed successfully!")
 
 if __name__ == "__main__":
