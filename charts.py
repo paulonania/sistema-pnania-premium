@@ -99,14 +99,7 @@ def _fig_mapa(df, coluna, titulo, label_barra, n_linhas, n_pontos):
     
     y_ticks = list(range(1, n_pontos + 1))
     ax.set_yticks(y_ticks)
-    y_labels = []
-    for val in y_ticks:
-        if val == 1:
-            y_labels.append("Entrada / Ponto 1")
-        elif val == n_pontos:
-            y_labels.append(f"Fundo / Ponto {n_pontos}")
-        else:
-            y_labels.append(f"Ponto {val}")
+    y_labels = [f"Ponto {val}" for val in y_ticks]
     ax.set_yticklabels(y_labels, fontsize=9, fontweight="bold")
 
     x_ticks = list(range(1, n_linhas + 1))
@@ -143,14 +136,7 @@ def fig_mapa_penetrometro(df, n_linhas, n_pontos):
     
     y_ticks = list(range(1, n_pontos + 1))
     ax.set_yticks(y_ticks)
-    y_labels = []
-    for val in y_ticks:
-        if val == 1:
-            y_labels.append("Entrada / Ponto 1")
-        elif val == n_pontos:
-            y_labels.append(f"Fundo / Ponto {n_pontos}")
-        else:
-            y_labels.append(f"Ponto {val}")
+    y_labels = [f"Ponto {val}" for val in y_ticks]
     ax.set_yticklabels(y_labels, fontsize=9, fontweight="bold")
 
     x_ticks = list(range(1, n_linhas + 1))
@@ -165,13 +151,13 @@ def fig_mapa_penetrometro(df, n_linhas, n_pontos):
     cbar_ticks = [2.0, 3.5, 4.5, 5.75, 7.25, 8.5, 10.0]
     cbar.set_ticks(cbar_ticks)
     cbar.set_ticklabels([
-        "PR1 (<3.0)",
-        "PR2 (3.0-4.0)",
-        "PR3 (4.0-5.0)",
-        "PR4 (5.0-6.5)",
-        "PR5 (6.5-8.0)",
-        "PR6 (8.0-9.0)",
-        "PR7 (>=9.0)"
+        "Muito Dura (<3.0)",
+        "Dura (3.0-4.0)",
+        "Firme 1 (4.0-5.0)",
+        "Firme 2 (5.0-6.5)",
+        "Macia 1 (6.5-8.0)",
+        "Macia 2 (8.0-9.0)",
+        "Pesada (>=9.0)"
     ])
     
     return fig

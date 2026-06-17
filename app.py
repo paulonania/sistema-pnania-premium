@@ -768,7 +768,6 @@ def render_graficos():
             st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
             
     with col_g2:
-        st.markdown("#### Mapa do Índice do Penetrômetro (Média e PR1-PR7)")
         st.pyplot(fig_map_penetro)
         label_pen_cv, _ = classificar_penetro(stats["io_geral"])
         st.markdown(f"**Coeficiente de Variação (CV):** {stats['io_geral']:.1f}% ({label_pen_cv})")
