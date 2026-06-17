@@ -348,6 +348,48 @@ def render_coletar():
     total = int(meta["n_linhas"]) * int(meta["n_pontos"])
 
     st.subheader("Dados de campo")
+    
+    # Barra de Status de Conexão (segura contra quedas de internet)
+    status_html = """
+    <div id="status-bar" style="padding: 10px; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: bold; text-align: center; transition: all 0.3s ease;">
+      Verificando conexão...
+    </div>
+
+    <script>
+      function updateStatus() {
+        const bar = document.getElementById("status-bar");
+        if (navigator.onLine) {
+          bar.style.backgroundColor = "#e2f0d9";
+          bar.style.color = "#2e7d32";
+          bar.style.border = "1px solid #a9d08e";
+          bar.innerHTML = "🟢 DISPOSITIVO CONECTADO &mdash; Pronto para salvar a cada clique/toque";
+        } else {
+          bar.style.backgroundColor = "#fef2f2";
+          bar.style.color = "#c62828";
+          bar.style.border = "2px solid #ef4444";
+          bar.innerHTML = "⚠️ CONEXÃO PERDIDA! O que for digitado agora NÃO será salvo no servidor.";
+          bar.style.animation = "blink 1.5s infinite";
+        }
+      }
+
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @keyframes blink {
+          0% { opacity: 1; }
+          50% { opacity: 0.4; }
+          100% { opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      window.addEventListener("online", updateStatus);
+      window.addEventListener("offline", updateStatus);
+      setInterval(updateStatus, 2000);
+      updateStatus();
+    </script>
+    """
+    st.components.v1.html(status_html, height=48)
+
     st.info(
         f"Grade **{meta['n_linhas']}×{meta['n_pontos']}** — {total} pontos. "
         "Preencha a tabela abaixo com as medições do penetrômetro."
