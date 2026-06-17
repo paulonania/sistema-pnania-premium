@@ -21,7 +21,7 @@ from analysis import (
     classificar_espessura_valor,
     classificar_perfil,
 )
-from charts import fig_mapa_espessura, fig_mapa_umidade, fig_penetrometro, fig_comparativa
+from charts import fig_mapa_espessura, fig_mapa_umidade, fig_penetrometro, fig_comparativa, fig_mapa_penetrometro
 from data import (
     assinatura_grade,
     carregar_csv,
@@ -749,26 +749,35 @@ def render_graficos():
     stats = calcular_estatisticas(df, meta)
 
     st.subheader("Gráficos de Análise")
-    
     fig1 = fig_penetrometro(df, meta, stats)
     tem_espessura = meta["coletou_espessura"] and (df["Espessura"] > 0).any()
     fig2 = fig_mapa_espessura(df, int(meta["n_linhas"]), int(meta["n_pontos"])) if tem_espessura else None
     tem_umidade = meta["coletou_umidade"] and (df["Umidade"] > 0.0).any()
     fig3 = fig_mapa_umidade(df, int(meta["n_linhas"]), int(meta["n_pontos"])) if tem_umidade else None
+    fig_map_penetro = fig_mapa_penetrometro(df, int(meta["n_linhas"]), int(meta["n_pontos"]))
 
-    col_g1, col_g2 = st.columns([1.2, 1.0])
+    col_g1, col_g2 = st.columns(2)
     with col_g1:
+        st.markdown("#### Índice do Penetrômetro (Fases)")
         st.pyplot(fig1)
-    with col_g2:
         if fig2:
+            st.markdown("#### Mapa de Espessura da Pista")
             st.pyplot(fig2)
             label_esp_cv, _ = classificar_espessura(stats["io_espessura"])
-            st.markdown(f"**Coeficiente de Variação:** {stats['io_espessura']:.1f}% ({label_esp_cv})")
+            st.markdown(f"**Coeficiente de Variação (CV):** {stats['io_espessura']:.1f}% ({label_esp_cv})")
             st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            
+    with col_g2:
+        st.markdown("#### Mapa do Índice do Penetrômetro (Média e PR1-PR7)")
+        st.pyplot(fig_map_penetro)
+        label_pen_cv, _ = classificar_penetro(stats["io_geral"])
+        st.markdown(f"**Coeficiente de Variação (CV):** {stats['io_geral']:.1f}% ({label_pen_cv})")
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
         if fig3:
+            st.markdown("#### Distribuição Espacial de Umidade")
             st.pyplot(fig3)
             label_umi_cv, _ = classificar_umidade(stats["io_umidade"])
-            st.markdown(f"**Coeficiente de Variação:** {stats['io_umidade']:.1f}% ({label_umi_cv})")
+            st.markdown(f"**Coeficiente de Variação (CV):** {stats['io_umidade']:.1f}% ({label_umi_cv})")
             
     st.divider()
     

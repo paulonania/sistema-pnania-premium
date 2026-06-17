@@ -126,6 +126,58 @@ def fig_mapa_umidade(df, n_linhas, n_pontos):
     return _fig_mapa(df, "Umidade", "MAPA DE UMIDADE DA PISTA", "Umidade (%)", n_linhas, n_pontos)
 
 
+def fig_mapa_penetrometro(df, n_linhas, n_pontos):
+    df = df.copy()
+    # Média das 3 quedas
+    df["Media_Penetrometro"] = (df["1ª Queda"] + df["2ª Queda"] + df["3ª Queda"]) / 3
+    
+    xi, yi = np.meshgrid(
+        np.linspace(1, n_linhas, 100),
+        np.linspace(1, n_pontos, 100),
+    )
+    zi = griddata((df["X"], df["Y"]), df["Media_Penetrometro"], (xi, yi), method="cubic")
+
+    fig, ax = plt.subplots(figsize=(7, 4.2))
+    mapa = ax.imshow(zi, extent=[1, n_linhas, 1, n_pontos], origin="lower", cmap="turbo", aspect="auto", vmin=1.0, vmax=11.0)
+    ax.set_title("MAPA DO ÍNDICE DO PENETRÔMETRO (MÉDIA)", fontsize=11, fontweight="bold", color="#0f3a61", pad=12)
+    
+    y_ticks = list(range(1, n_pontos + 1))
+    ax.set_yticks(y_ticks)
+    y_labels = []
+    for val in y_ticks:
+        if val == 1:
+            y_labels.append("Entrada / Ponto 1")
+        elif val == n_pontos:
+            y_labels.append(f"Fundo / Ponto {n_pontos}")
+        else:
+            y_labels.append(f"Ponto {val}")
+    ax.set_yticklabels(y_labels, fontsize=9, fontweight="bold")
+
+    x_ticks = list(range(1, n_linhas + 1))
+    ax.set_xticks(x_ticks)
+    x_labels = [f"Linha {val}" for val in x_ticks]
+    ax.set_xticklabels(x_labels, fontsize=9, fontweight="bold")
+
+    cbar = fig.colorbar(mapa, ax=ax)
+    cbar.set_label("Penetração (cm) | Classificação", fontweight="bold")
+    
+    # Tick positions at class centers
+    cbar_ticks = [2.0, 3.5, 4.5, 5.75, 7.25, 8.5, 10.0]
+    cbar.set_ticks(cbar_ticks)
+    cbar.set_ticklabels([
+        "PR1 (<3.0)",
+        "PR2 (3.0-4.0)",
+        "PR3 (4.0-5.0)",
+        "PR4 (5.0-6.5)",
+        "PR5 (6.5-8.0)",
+        "PR6 (8.0-9.0)",
+        "PR7 (>=9.0)"
+    ])
+    
+    return fig
+
+
+
 def fig_comparativa(historico_dados, meta=None):
     fases = ["Impacto", "Suporte", "Tração"]
     
