@@ -489,10 +489,6 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         # Se for apenas tabelas, desenha o Parecer Técnico na Página 1 logo após os cards
         if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
             pdf.set_y(pdf.get_y() + 5)
-            pdf.set_font("Helvetica", "B", 12)
-            pdf.set_text_color(15, 58, 97)
-            pdf.cell(0, 6, _texto_latin("Parecer Técnico e Notas"), ln=True)
-            pdf.ln(1)
             pdf.set_text_color(50, 50, 50)
             
             if meta.get("notas_gerais"):
@@ -581,10 +577,6 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
 
         # Parecer Técnico e Notas (caso preenchido)
         if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
-            pdf.set_font("Helvetica", "B", 13)
-            pdf.set_text_color(15, 58, 97)
-            pdf.cell(0, 6, _texto_latin("Parecer Técnico e Notas"), ln=True)
-            pdf.ln(1.5)
             pdf.set_text_color(50, 50, 50)
             
             if meta.get("notas_gerais"):

@@ -102,6 +102,13 @@ def salvar_estado_local():
         if "passo" in st.session_state:
             st.session_state.meta["passo"] = st.session_state.passo
             
+        # Sincronizar os campos de Parecer Técnico caso existam na sessão
+        for key, meta_key in [("rep_notas_gerais", "notas_gerais"), 
+                               ("rep_notas_manejo", "notas_manejo"), 
+                               ("rep_notas_parecer", "notas_parecer")]:
+            if key in st.session_state:
+                st.session_state.meta[meta_key] = st.session_state[key]
+                
         df_to_save = st.session_state.df_coleta
         if st.session_state.get("passo") == 1 and EDITOR_KEY in st.session_state:
             bruto = st.session_state[EDITOR_KEY]
@@ -732,8 +739,6 @@ def render_diagnostico():
     tem_umidade = meta["coletou_umidade"] and (df["Umidade"] > 0.0).any()
     fig3 = fig_mapa_umidade(df, int(meta["n_linhas"]), int(meta["n_pontos"])) if tem_umidade else None
 
-    st.markdown("### Parecer Técnico")
-    
     val_gerais = st.text_area(
         "Observações Gerais", 
         value=meta.get("notas_gerais", ""),
@@ -1071,7 +1076,6 @@ def render_relatorio_pdf():
     # 3. Parecer Técnico e Notas
     if meta.get("notas_gerais") or meta.get("notas_manejo") or meta.get("notas_parecer"):
         st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
-        st.subheader("Parecer Técnico e Notas")
         
         if meta.get("notas_gerais"):
             with st.container(border=True):
