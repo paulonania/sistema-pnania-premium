@@ -101,7 +101,14 @@ def salvar_estado_local():
     try:
         if "passo" in st.session_state:
             st.session_state.meta["passo"] = st.session_state.passo
-        csv_bytes = exportar_csv(st.session_state.df_coleta, st.session_state.meta)
+            
+        df_to_save = st.session_state.df_coleta
+        if st.session_state.get("passo") == 1 and EDITOR_KEY in st.session_state:
+            bruto = st.session_state[EDITOR_KEY]
+            df_to_save = extrair_df_editor(bruto, st.session_state.df_coleta)
+            df_to_save = normalizar_df_coleta(df_to_save)
+            
+        csv_bytes = exportar_csv(df_to_save, st.session_state.meta)
         with open(LAST_DATA_PATH, "wb") as f:
             f.write(csv_bytes)
             
@@ -166,26 +173,7 @@ def sync_editor_to_coleta(editor_df=None):
 
 
 def salvar_estado_coleta_imediato():
-    if EDITOR_KEY in st.session_state:
-        bruto = st.session_state[EDITOR_KEY]
-        df = extrair_df_editor(bruto, st.session_state.df_coleta)
-        df_normalizado = normalizar_df_coleta(df)
-        try:
-            if "passo" in st.session_state:
-                st.session_state.meta["passo"] = st.session_state.passo
-            csv_bytes = exportar_csv(df_normalizado, st.session_state.meta)
-            with open(LAST_DATA_PATH, "wb") as f:
-                f.write(csv_bytes)
-            
-            # Copiar para o diretório de histórico
-            meta = st.session_state.meta
-            if meta.get("fazenda") and meta.get("data"):
-                nome = nome_arquivo("Levantamento", meta) + ".csv"
-                caminho_hist = os.path.join(HISTORICO_DIR, nome)
-                with open(caminho_hist, "wb") as f:
-                    f.write(csv_bytes)
-        except Exception:
-            pass
+    salvar_estado_local()
 
 
 def preparar_editor_coleta():
