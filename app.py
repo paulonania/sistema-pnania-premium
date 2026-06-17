@@ -53,6 +53,11 @@ EDITOR_SIG_KEY = "coleta_editor_sig"
 CSV_UPLOAD_KEY = "csv_upload_id"
 CSV_LOAD_MSG_KEY = "csv_load_msg"
 
+# Declare custom textarea component for localStorage persistence
+PARENT_DIR = os.path.dirname(os.path.abspath(__file__))
+TEXTAREA_DIR = os.path.join(PARENT_DIR, "components", "textarea")
+custom_textarea = st.components.v1.declare_component("custom_textarea", path=TEXTAREA_DIR)
+
 
 def aplicar_levantamento_carregado(meta_nova, df_nova, source_id, mensagem):
     st.session_state.meta = meta_nova
@@ -721,22 +726,6 @@ def render_resumo_cards(stats, meta, df):
         )
 
 
-def salvar_parecer_gerais():
-    if "rep_notas_gerais" in st.session_state:
-        st.session_state.meta["notas_gerais"] = st.session_state.rep_notas_gerais
-        salvar_estado_local()
-
-def salvar_parecer_manejo():
-    if "rep_notas_manejo" in st.session_state:
-        st.session_state.meta["notas_manejo"] = st.session_state.rep_notas_manejo
-        salvar_estado_local()
-
-def salvar_parecer_tecnico():
-    if "rep_notas_parecer" in st.session_state:
-        st.session_state.meta["notas_parecer"] = st.session_state.rep_notas_parecer
-        salvar_estado_local()
-
-
 def render_diagnostico():
     sync_editor_to_coleta()
     meta = st.session_state.meta
@@ -755,27 +744,37 @@ def render_diagnostico():
     tem_umidade = meta["coletou_umidade"] and (df["Umidade"] > 0.0).any()
     fig3 = fig_mapa_umidade(df, int(meta["n_linhas"]), int(meta["n_pontos"])) if tem_umidade else None
 
-    st.text_area(
-        "Observações Gerais", 
-        value=meta.get("notas_gerais", ""),
+    val_gerais = custom_textarea(
+        label="Observações Gerais",
+        defaultValue=meta.get("notas_gerais", ""),
         key="rep_notas_gerais",
-        on_change=salvar_parecer_gerais,
-        help="Digite observações gerais sobre a coleta, clima ou condições adicionais."
+        placeholder="Digite observações gerais sobre a coleta, clima ou condições adicionais."
     )
-    st.text_area(
-        "Manejo Recomendado", 
-        value=meta.get("notas_manejo", ""),
+    val_manejo = custom_textarea(
+        label="Manejo Recomendado",
+        defaultValue=meta.get("notas_manejo", ""),
         key="rep_notas_manejo",
-        on_change=salvar_parecer_manejo,
-        help="Recomendações de manejo (Ex: irrigar, gradear, nivelar, etc.)"
+        placeholder="Recomendações de manejo (Ex: irrigar, gradear, nivelar, etc.)"
     )
-    st.text_area(
-        "Parecer Técnico", 
-        value=meta.get("notas_parecer", ""),
+    val_parecer = custom_textarea(
+        label="Parecer Técnico",
+        defaultValue=meta.get("notas_parecer", ""),
         key="rep_notas_parecer",
-        on_change=salvar_parecer_tecnico,
-        help="Sua conclusão técnica e diagnóstico do picadeiro."
+        placeholder="Sua conclusão técnica e diagnóstico do picadeiro."
     )
+
+    # Save immediately if component returns a new value
+    if val_gerais is not None and val_gerais != meta.get("notas_gerais", ""):
+        meta["notas_gerais"] = val_gerais
+        salvar_estado_local()
+
+    if val_manejo is not None and val_manejo != meta.get("notas_manejo", ""):
+        meta["notas_manejo"] = val_manejo
+        salvar_estado_local()
+
+    if val_parecer is not None and val_parecer != meta.get("notas_parecer", ""):
+        meta["notas_parecer"] = val_parecer
+        salvar_estado_local()
         
     st.divider()
 
