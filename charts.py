@@ -160,6 +160,39 @@ def fig_mapa_penetrometro(df, n_linhas, n_pontos):
         "Pesada (>=9.0)"
     ])
     
+    # Anotações de texto dentro do mapa de calor em cada ponto levantado
+    for _, row in df.iterrows():
+        x = row["X"]
+        y = row["Y"]
+        media_pt = row["Media_Penetrometro"]
+        
+        # Determina a classificação
+        if media_pt < 3.0:
+            lbl = "Muito Dura"
+        elif media_pt < 4.0:
+            lbl = "Dura"
+        elif media_pt < 5.0:
+            lbl = "Firme 1"
+        elif media_pt < 6.5:
+            lbl = "Firme 2"
+        elif media_pt < 8.0:
+            lbl = "Macia 1"
+        elif media_pt < 9.0:
+            lbl = "Macia 2"
+        else:
+            lbl = "Pesada"
+            
+        # Adiciona o texto no gráfico com caixa branca semitransparente para legibilidade
+        ax.text(
+            x, y, lbl,
+            color="#222222",
+            fontsize=7,
+            fontweight="bold",
+            ha="center",
+            va="center",
+            bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none", alpha=0.65)
+        )
+        
     return fig
 
 
