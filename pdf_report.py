@@ -219,10 +219,10 @@ def _desenhar_tabelas_e_legenda(pdf, stats, meta):
         h=24, 
         titulo="Penetrômetro", 
         valor_atual=f"{media_fases:.1f} cm", 
-        classificacao=rotulo_perfil, 
+        classificacao=f"{rotulo_perfil} | {desc_perfil}", 
         cor_hex=cor_perfil, 
         destaque=True,
-        subtitulo=desc_perfil
+        subtitulo=None
     )
     
     y_row1_drops = y_row1_top + 24 + 3

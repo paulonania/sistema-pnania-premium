@@ -191,11 +191,12 @@ def salvar_estado_coleta_imediato():
 def preparar_editor_coleta():
     meta = st.session_state.meta
     sig = assinatura_grade(meta)
-    st.session_state.df_coleta = normalizar_df_coleta(st.session_state.df_coleta)
 
     if st.session_state.get(EDITOR_SIG_KEY) != sig:
+        atualizar_grade()
         st.session_state[EDITOR_SIG_KEY] = sig
-        st.session_state.pop(EDITOR_KEY, None)
+
+    st.session_state.df_coleta = normalizar_df_coleta(st.session_state.df_coleta)
 
 
 def atualizar_grade():
@@ -509,11 +510,11 @@ def render_resumo_cards(stats, meta, df):
                 render_card_html_unificado(
                     titulo="Penetrômetro",
                     valor_atual=f"{media_fases:.1f} cm",
-                    classificacao=rotulo_perfil,
+                    classificacao=f"{rotulo_perfil} | {desc_perfil}",
                     color_hex=cor_perfil,
                     ideal_txt=None,
                     destaque=True,
-                    subtitulo=desc_perfil
+                    subtitulo=None
                 ),
                 unsafe_allow_html=True
             )

@@ -177,60 +177,60 @@ def test_diagnostico_perfil():
     # --- Pista de Treinamento ---
     # Muito Dura (< 3.0)
     lbl, color, app = classificar_perfil(2.5, "Pista de Treinamento")
-    assert lbl == "Pista Muito Dura" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Muito Dura error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Muito Dura" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Treinamento Muito Dura error: {lbl}, {color}, {app}"
     # Dura (3.0 <= media < 4.0)
     lbl, color, app = classificar_perfil(3.5, "Pista de Treinamento")
-    assert lbl == "Pista Dura" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Dura error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Dura" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Treinamento Dura error: {lbl}, {color}, {app}"
     # Firme 1 (4.0 <= media < 5.0)
     lbl, color, app = classificar_perfil(4.5, "Pista de Treinamento")
-    assert lbl == "Pista Firme 1" and color == "#f57c00" and app == "SATISFATORIA", f"Treinamento Firme 1 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Firme 1" and color == "#f57c00" and app == "SATISFATÓRIA", f"Treinamento Firme 1 error: {lbl}, {color}, {app}"
     # Firme 2 (5.0 <= media < 6.5)
     lbl, color, app = classificar_perfil(5.8, "Pista de Treinamento")
-    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "ÓTIMO", f"Treinamento Firme 2 Ótimo error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "ÓTIMA", f"Treinamento Firme 2 Ótima error: {lbl}, {color}, {app}"
     # Firme 2 border low
     lbl, color, app = classificar_perfil(5.1, "Pista de Treinamento")
-    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "BOM", f"Treinamento Firme 2 Bom border low error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "BOA", f"Treinamento Firme 2 Boa border low error: {lbl}, {color}, {app}"
     # Firme 2 border high
     lbl, color, app = classificar_perfil(6.4, "Pista de Treinamento")
-    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "BOM", f"Treinamento Firme 2 Bom border high error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "BOA", f"Treinamento Firme 2 Boa border high error: {lbl}, {color}, {app}"
     # Macia 1 (6.5 <= media < 8.0)
     lbl, color, app = classificar_perfil(6.8, "Pista de Treinamento")
-    assert lbl == "Pista Macia 1" and color == "#f57c00" and app == "Satisfatorio", f"Treinamento Macia 1 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Macia 1" and color == "#f57c00" and app == "SATISFATÓRIA", f"Treinamento Macia 1 error: {lbl}, {color}, {app}"
     # Macia 1 border high (7.5)
     lbl, color, app = classificar_perfil(7.5, "Pista de Treinamento")
-    assert lbl == "Pista Macia 1" and color == "#f57c00" and app == "Satisfatorio", f"Treinamento Macia 1 high error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Macia 1" and color == "#f57c00" and app == "SATISFATÓRIA", f"Treinamento Macia 1 high error: {lbl}, {color}, {app}"
     # Macia 2 (8.0 <= media < 9.0)
     lbl, color, app = classificar_perfil(8.5, "Pista de Treinamento")
-    assert lbl == "Pista Macia 2" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Macia 2 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Macia 2" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Treinamento Macia 2 error: {lbl}, {color}, {app}"
     # Pesada (media >= 9.0)
     lbl, color, app = classificar_perfil(9.5, "Pista de Treinamento")
-    assert lbl == "Pista Pesada" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Treinamento Pesada error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Pesada" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Treinamento Pesada error: {lbl}, {color}, {app}"
 
     # --- Pista de Competição ---
     # Muito Dura
     lbl, color, app = classificar_perfil(2.5, "Pista de Competição")
-    assert lbl == "Pista Muito Dura" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Muito Dura error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Muito Dura" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Competição Muito Dura error: {lbl}, {color}, {app}"
     # Dura
     lbl, color, app = classificar_perfil(3.5, "Pista de Competição")
-    assert lbl == "Pista Dura" and color == "#f57c00" and app == "SATISFATORIA", f"Competição Dura error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Dura" and color == "#f57c00" and app == "SATISFATÓRIA", f"Competição Dura error: {lbl}, {color}, {app}"
     # Firme 1
     lbl, color, app = classificar_perfil(4.5, "Pista de Competição")
-    assert lbl == "Pista Firme 1" and color == "#2e7d32" and app == "OTIMO", f"Competição Firme 1 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Firme 1" and color == "#2e7d32" and app == "ÓTIMA", f"Competição Firme 1 error: {lbl}, {color}, {app}"
     # Firme 2
     lbl, color, app = classificar_perfil(5.8, "Pista de Competição")
-    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "SATISFATORIA", f"Competição Firme 2 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Firme 2" and color == "#2e7d32" and app == "SATISFATÓRIA", f"Competição Firme 2 error: {lbl}, {color}, {app}"
     # Macia 1
     lbl, color, app = classificar_perfil(6.8, "Pista de Competição")
-    assert lbl == "Pista Macia 1" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Macia 1 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Macia 1" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Competição Macia 1 error: {lbl}, {color}, {app}"
     # Macia 1 border high
     lbl, color, app = classificar_perfil(7.5, "Pista de Competição")
-    assert lbl == "Pista Macia 1" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Macia 1 high error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Macia 1" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Competição Macia 1 high error: {lbl}, {color}, {app}"
     # Macia 2
     lbl, color, app = classificar_perfil(8.5, "Pista de Competição")
-    assert lbl == "Pista Macia 2" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Macia 2 error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Macia 2" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Competição Macia 2 error: {lbl}, {color}, {app}"
     # Pesada
     lbl, color, app = classificar_perfil(9.5, "Pista de Competição")
-    assert lbl == "Pista Pesada" and color == "#c62828" and app == "NÃO SATISFATORIA", f"Competição Pesada error: {lbl}, {color}, {app}"
+    assert lbl == "Pista Pesada" and color == "#c62828" and app == "NÃO SATISFATÓRIA", f"Competição Pesada error: {lbl}, {color}, {app}"
 
 
 def test_pista_competicao():

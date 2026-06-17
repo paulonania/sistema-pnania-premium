@@ -320,34 +320,34 @@ def classificar_espessura_valor(valor_medido, ideal_str):
 def classificar_perfil(media, tipo_pista="Pista de Treinamento"):
     if tipo_pista == "Pista de Competição":
         if media < 3.0:
-            return "Pista Muito Dura", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Muito Dura", "#c62828", "NÃO SATISFATÓRIA"
         elif media < 4.0:
-            return "Pista Dura", "#f57c00", "SATISFATORIA"
+            return "Pista Dura", "#f57c00", "SATISFATÓRIA"
         elif media < 5.0:
-            return "Pista Firme 1", "#2e7d32", "OTIMO"
+            return "Pista Firme 1", "#2e7d32", "ÓTIMA"
         elif media < 6.5:
-            return "Pista Firme 2", "#2e7d32", "SATISFATORIA"
+            return "Pista Firme 2", "#2e7d32", "SATISFATÓRIA"
         elif media < 8.0:
-            return "Pista Macia 1", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Macia 1", "#c62828", "NÃO SATISFATÓRIA"
         elif media < 9.0:
-            return "Pista Macia 2", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Macia 2", "#c62828", "NÃO SATISFATÓRIA"
         else:
-            return "Pista Pesada", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Pesada", "#c62828", "NÃO SATISFATÓRIA"
     else:
         if media < 3.0:
-            return "Pista Muito Dura", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Muito Dura", "#c62828", "NÃO SATISFATÓRIA"
         elif media < 4.0:
-            return "Pista Dura", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Dura", "#c62828", "NÃO SATISFATÓRIA"
         elif media < 5.0:
-            return "Pista Firme 1", "#f57c00", "SATISFATORIA"
+            return "Pista Firme 1", "#f57c00", "SATISFATÓRIA"
         elif media < 6.5:
             if 5.50 <= media <= 6.00:
-                return "Pista Firme 2", "#2e7d32", "ÓTIMO"
+                return "Pista Firme 2", "#2e7d32", "ÓTIMA"
             else:
-                return "Pista Firme 2", "#2e7d32", "BOM"
+                return "Pista Firme 2", "#2e7d32", "BOA"
         elif media < 8.0:
-            return "Pista Macia 1", "#f57c00", "Satisfatorio"
+            return "Pista Macia 1", "#f57c00", "SATISFATÓRIA"
         elif media < 9.0:
-            return "Pista Macia 2", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Macia 2", "#c62828", "NÃO SATISFATÓRIA"
         else:
-            return "Pista Pesada", "#c62828", "NÃO SATISFATORIA"
+            return "Pista Pesada", "#c62828", "NÃO SATISFATÓRIA"
