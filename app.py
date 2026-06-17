@@ -380,6 +380,10 @@ def render_coletar():
         key=EDITOR_KEY,
     )
 
+    # Auto-salvamento imediato a cada edição de campo
+    if not edited_df.equals(st.session_state.df_coleta):
+        st.session_state.df_coleta = normalizar_df_coleta(edited_df)
+        salvar_estado_local()
 
     c1, c2 = st.columns(2)
     with c1:
