@@ -165,6 +165,29 @@ def sync_editor_to_coleta(editor_df=None):
         salvar_estado_local()
 
 
+def salvar_estado_coleta_imediato():
+    if EDITOR_KEY in st.session_state:
+        bruto = st.session_state[EDITOR_KEY]
+        df = extrair_df_editor(bruto, st.session_state.df_coleta)
+        df_normalizado = normalizar_df_coleta(df)
+        try:
+            if "passo" in st.session_state:
+                st.session_state.meta["passo"] = st.session_state.passo
+            csv_bytes = exportar_csv(df_normalizado, st.session_state.meta)
+            with open(LAST_DATA_PATH, "wb") as f:
+                f.write(csv_bytes)
+            
+            # Copiar para o diretório de histórico
+            meta = st.session_state.meta
+            if meta.get("fazenda") and meta.get("data"):
+                nome = nome_arquivo("Levantamento", meta) + ".csv"
+                caminho_hist = os.path.join(HISTORICO_DIR, nome)
+                with open(caminho_hist, "wb") as f:
+                    f.write(csv_bytes)
+        except Exception:
+            pass
+
+
 def preparar_editor_coleta():
     meta = st.session_state.meta
     sig = assinatura_grade(meta)
@@ -422,10 +445,8 @@ def render_coletar():
         key=EDITOR_KEY,
     )
 
-    # Auto-salvamento imediato a cada edição de campo
-    if not edited_df.equals(st.session_state.df_coleta):
-        st.session_state.df_coleta = normalizar_df_coleta(edited_df)
-        salvar_estado_local()
+    # Auto-salvamento imediato a cada alteração de campo sem resetar o editor
+    salvar_estado_coleta_imediato()
 
     c1, c2 = st.columns(2)
     with c1:
