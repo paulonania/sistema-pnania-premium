@@ -288,22 +288,34 @@ def extrair_df_editor(valor, base_df):
     if isinstance(valor, dict):
         if not valor:
             return base_df.copy()
-        # Dict de colunas -> listas (formato comum do Streamlit)
-        if all(isinstance(k, str) for k in valor.keys()):
+            
+        df = base_df.copy()
+        
+        # Se for o dicionário completo do widget st.data_editor
+        if "edited_rows" in valor:
+            edited_rows = valor.get("edited_rows", {})
+            for idx_str, changes in edited_rows.items():
+                try:
+                    idx = int(idx_str)
+                    for col, val in changes.items():
+                        if col in df.columns and idx in df.index:
+                            df.at[idx, col] = val
+                except (ValueError, TypeError):
+                    pass
+            return df
+            
+        # Caso contrário, tenta como dict de índice -> alterações por coluna
+        for idx_raw, changes in valor.items():
             try:
-                return pd.DataFrame(valor)
+                idx = int(idx_raw)
+                if isinstance(changes, dict):
+                    for col, val in changes.items():
+                        if col in df.columns and idx in df.index:
+                            df.at[idx, col] = val
             except (ValueError, TypeError):
                 pass
-        # Dict de índice -> alterações por coluna
-        if all(isinstance(k, int) for k in valor.keys()):
-            df = base_df.copy()
-            for idx, changes in valor.items():
-                if not isinstance(changes, dict):
-                    continue
-                for col, val in changes.items():
-                    if col in df.columns and idx in df.index:
-                        df.at[idx, col] = val
-            return df
+        return df
+        
     return base_df.copy()
 
 
