@@ -129,7 +129,7 @@ def calcular_estatisticas(df, meta):
     io_espessura = calcular_io(df["Espessura"]) if coletou_espessura else 0.0
 
     umidade_media = df["Umidade"].mean() if coletou_umidade else meta["global_umi"]
-    espessura_media = round(df["Espessura"].mean()) if coletou_espessura else meta["global_esp"]
+    espessura_media = round(df["Espessura"].mean(), 1) if coletou_espessura else meta["global_esp"]
 
     fases = [
         {

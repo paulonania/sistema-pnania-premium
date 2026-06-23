@@ -165,6 +165,9 @@ def init_session():
     
     if "passo" not in st.session_state:
         st.session_state.passo = 0
+        
+    if "df_coleta" in st.session_state:
+        st.session_state.df_coleta = normalizar_df_coleta(st.session_state.df_coleta)
 
 
 def reset_coleta_editor():
@@ -310,8 +313,8 @@ def render_configurar():
                 meta["global_umi"] = st.number_input("Umidade geral (%)", 0.0, 100.0, val_umi, 0.1)
         with g2:
             if not meta["coletou_espessura"]:
-                val_esp = max(0, min(50, int(float(meta.get("global_esp", 12)))))
-                meta["global_esp"] = st.number_input("Espessura geral (cm)", 0, 50, val_esp, 1)
+                val_esp = max(0.0, min(50.0, float(meta.get("global_esp", 12.0))))
+                meta["global_esp"] = st.number_input("Espessura geral (cm)", 0.0, 50.0, val_esp, 0.1, format="%.1f")
 
 
     st.subheader("Histórico")
@@ -348,7 +351,7 @@ def render_configurar():
                     "2ª Queda": 0.0,
                     "3ª Queda": 0.0,
                     "Umidade": 0.0,
-                    "Espessura": 0,
+                    "Espessura": 0.0,
                 }
                 for l in range(1, 5)
                 for p in range(1, 6)
@@ -433,7 +436,7 @@ def render_coletar():
         colunas["Umidade"] = st.column_config.NumberColumn("Umidade (%)", min_value=0.0, max_value=100.0, step=0.1, format="%.1f")
         colunas_visiveis.append("Umidade")
     if meta["coletou_espessura"]:
-        colunas["Espessura"] = st.column_config.NumberColumn("Espessura (cm)", min_value=0, max_value=50, step=1, format="%d")
+        colunas["Espessura"] = st.column_config.NumberColumn("Espessura (in)", min_value=0.0, max_value=20.0, step=0.1, format="%.1f")
         colunas_visiveis.append("Espessura")
 
     edited_df = st.data_editor(

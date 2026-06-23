@@ -15,7 +15,7 @@ DEFAULTS = {
     "q2": 5.5,
     "q3": 7.2,
     "umi": 18.0,
-    "esp": 12,
+    "esp": 12.0,
 }
 
 
@@ -26,13 +26,13 @@ def meta_padrao():
         "dimensao": "30x50m",
         "data": "06/06/2026",
         "ideal_umi": "18.0%",
-        "ideal_esp": "12 cm",
+        "ideal_esp": "12.0 cm",
         "n_linhas": 4,
         "n_pontos": 5,
         "coletou_umidade": True,
         "coletou_espessura": True,
         "global_umi": 18.0,
-        "global_esp": 12,
+        "global_esp": 12.0,
         "notas_gerais": "",
         "notas_manejo": "",
         "notas_parecer": "",
@@ -173,7 +173,7 @@ def carregar_csv(uploaded_file):
             pass
     if "Global Espessura" in primeira and pd.notna(primeira["Global Espessura"]):
         try:
-            meta["global_esp"] = int(float(primeira["Global Espessura"]))
+            meta["global_esp"] = float(primeira["Global Espessura"])
         except ValueError:
             pass
 
@@ -234,7 +234,8 @@ def carregar_csv(uploaded_file):
         "2ª Queda": df["2ª Queda"].astype(float),
         "3ª Queda": df["3ª Queda"].astype(float),
         "Umidade": col_umi_num.loc[df.index].fillna(0.0).astype(float),
-        "Espessura": col_esp_num.loc[df.index].fillna(0).astype(int),
+        # Convert thickness from centimeters in the saved CSV/Excel back to inches for the raw collect tab
+        "Espessura": (col_esp_num.loc[df.index].fillna(0.0).astype(float) / 2.54),
     })
 
     return meta, coleta.sort_values(["Linha", "Ponto"]).reset_index(drop=True)
@@ -263,8 +264,12 @@ def preparar_dados_analise(df_coleta, meta):
 
     if not meta["coletou_umidade"]:
         df["Umidade"] = meta["global_umi"]
-    if not meta["coletou_espessura"]:
-        df["Espessura"] = meta["global_esp"]
+        
+    if meta.get("coletou_espessura", True):
+        # Convert raw collected values from inches to centimeters for all reports, maps, and charts
+        df["Espessura"] = df["Espessura"] * 2.54
+    else:
+        df["Espessura"] = meta.get("global_esp", 0.0)
     
     # Garantir a estrutura de colunas com "Espessura da Camada (cm)" como alias de "Espessura"
     df["Espessura da Camada (cm)"] = df["Espessura"]
@@ -329,7 +334,7 @@ def normalizar_df_coleta(df):
     df["2ª Queda"] = pd.to_numeric(df["2ª Queda"], errors="coerce").fillna(0.0)
     df["3ª Queda"] = pd.to_numeric(df["3ª Queda"], errors="coerce").fillna(0.0)
     df["Umidade"] = pd.to_numeric(df["Umidade"], errors="coerce").fillna(0.0)
-    df["Espessura"] = pd.to_numeric(df["Espessura"], errors="coerce").fillna(0).astype(int)
+    df["Espessura"] = pd.to_numeric(df["Espessura"], errors="coerce").fillna(0.0).astype(float)
     return df
 
 

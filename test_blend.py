@@ -2,7 +2,7 @@ import sys
 import os
 
 # Import the blend engine
-from blend_engine import calcular_afs, calcular_mistura, otimizar_proporcoes, dimensionar_insumos
+from blend_engine import calcular_afs, calcular_mistura, otimizar_proporcoes, dimensionar_insumos, mapear_para_usda
 
 def test_calcular_afs():
     print("Testing AFS calculation...")
@@ -51,7 +51,7 @@ def test_otimizar_proporcoes():
     print("Testing optimizer...")
     
     # If we optimize one sand, it should return 100%
-    assert otimizar_proporcoes([{"#10": 1.0}], "Hipismo (Imagens)") == [100.0]
+    assert otimizar_proporcoes([{"#10": 1.0}], "Paulo Nania Indoor") == [100.0]
     
     # Let's test with a simulated two sands optimization
     # Sand A is very coarse, Sand B is very fine
@@ -60,7 +60,7 @@ def test_otimizar_proporcoes():
     
     # Target range for #10 is 0-2% (mean 1%). Target for #100 is 25-35% (mean 30%).
     # The optimizer should give high proportion to Sand B and low to Sand A to match target.
-    proportions = otimizar_proporcoes([sand_a, sand_b], "Hipismo (Imagens)")
+    proportions = otimizar_proporcoes([sand_a, sand_b], "Paulo Nania Indoor")
     print(f"Optimized proportions for [Sand A (coarse), Sand B (fine)]: {proportions}")
     assert proportions[0] < proportions[1], "Sand B (fine) should have a higher proportion to match target range"
     assert abs(sum(proportions) - 100.0) < 0.1, f"Proportions must sum to 100%, got: {sum(proportions)}"
@@ -84,9 +84,41 @@ def test_dimensionar_insumos():
     print("dimensionar_insumos tests passed successfully!")
 
 
+def test_mapear_para_usda():
+    print("Testing USDA mapping...")
+    
+    # Let's test with simulated sand values
+    sand = {
+        "#10": 1.0,
+        "#14": 2.0,
+        "#18": 3.0,
+        "#35": 4.0,
+        "#40": 5.0,
+        "#60": 6.0,
+        "#100": 7.0,
+        "#140": 8.0,
+        "#200": 9.0,
+        "#270": 10.0,
+        "Finos": 11.0
+    }
+    
+    usda = mapear_para_usda(sand)
+    assert usda["Cascalho Grosso"] == 0.0
+    assert usda["Cascalho Fino"] == 1.0
+    assert usda["Muito Grossa"] == 5.0  # 2.0 + 3.0
+    assert usda["Grossa"] == 4.0
+    assert usda["Média"] == 11.0  # 5.0 + 6.0
+    assert usda["Fina"] == 15.0  # 7.0 + 8.0
+    assert usda["Muita Fina"] == 19.0  # 9.0 + 10.0
+    assert usda["Finos"] == 11.0
+    
+    print("mapear_para_usda tests passed successfully!")
+
+
 if __name__ == "__main__":
     test_calcular_afs()
     test_calcular_mistura()
     test_otimizar_proporcoes()
     test_dimensionar_insumos()
+    test_mapear_para_usda()
     print("ALL TESTS PASSED SUCCESSFULLY!")

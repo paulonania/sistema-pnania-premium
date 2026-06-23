@@ -20,33 +20,61 @@ SIEVES = ["#10", "#14", "#18", "#35", "#40", "#60", "#100", "#140", "#200", "#27
 
 # Faixas Alvo Padrão do Sistema
 FAIXAS_ALVO = {
-    "Geral (v5)": {
-        "#10": (0.0, 2.0),
-        "#14": (0.0, 2.0),
-        "#18": (0.0, 2.0),
-        "#35": (5.0, 15.0),
-        "#40": (5.0, 10.0),
-        "#60": (20.0, 35.0),
-        "#100": (25.0, 35.0),
-        "#140": (8.0, 12.0),
-        "#200": (2.0, 5.0),
+    "Paulo Nania Indoor": {
+        "#10": (0.0, 0.0),
+        "#14": (0.0, 0.5),
+        "#18": (0.0, 0.5),
+        "#35": (0.0, 2.0),
+        "#40": (0.0, 2.0),
+        "#60": (5.0, 15.0),
+        "#100": (45.0, 60.0),
+        "#140": (15.0, 25.0),
+        "#200": (5.0, 10.0),
         "#270": (0.0, 2.0),
         "Finos": (0.0, 2.0),
-        "AFS": (62.8, 63.4),
+        "AFS": (80.0, 83.7)
     },
-    "Hipismo (Imagens)": {
-        "#10": (0.0, 2.0),
-        "#14": (0.0, 2.0),
-        "#18": (0.0, 2.0),
-        "#35": (3.0, 8.0),
-        "#40": (5.0, 10.0),
-        "#60": (20.0, 35.0),
-        "#100": (25.0, 35.0),
-        "#140": (8.0, 12.0),
+    "Paulo Nania Outdoor": {
+        "#10": (0.0, 0.0),
+        "#14": (0.0, 0.5),
+        "#18": (0.0, 0.5),
+        "#35": (2.0, 5.0),
+        "#40": (2.0, 5.0),
+        "#60": (15.0, 20.0),
+        "#100": (40.0, 50.0),
+        "#140": (12.0, 18.0),
         "#200": (2.0, 5.0),
         "#270": (0.0, 2.0),
         "Finos": (0.0, 2.0),
-        "AFS": (64.1, 66.0),
+        "AFS": (70.3, 76.5)
+    },
+    "RSTL / FEI": {
+        "#10": (0.0, 0.0),
+        "#14": (0.0, 0.0),
+        "#18": (0.0, 1.0),
+        "#35": (0.0, 2.0),
+        "#40": (0.0, 5.0),
+        "#60": (18.0, 24.0),
+        "#100": (42.0, 52.0),
+        "#140": (12.0, 22.0),
+        "#200": (5.0, 15.0),
+        "#270": (0.0, 2.0),
+        "Finos": (0.0, 2.0),
+        "AFS": (74.5, 82.7)
+    },
+    "Kentucky Horse Park (indoor)": {
+        "#10": (0.0, 0.0),
+        "#14": (0.0, 0.5),
+        "#18": (0.0, 0.5),
+        "#35": (0.0, 2.5),
+        "#40": (0.0, 2.0),
+        "#60": (12.2, 18.2),
+        "#100": (48.7, 58.7),
+        "#140": (11.7, 21.7),
+        "#200": (4.6, 10.6),
+        "#270": (0.0, 2.0),
+        "Finos": (0.0, 2.0),
+        "AFS": (75.6, 82.5)
     }
 }
 
@@ -96,7 +124,16 @@ def otimizar_proporcoes(sands_data, faixa_alvo_name):
         return [100.0]
 
     # Obter os limites da faixa alvo
-    faixa = FAIXAS_ALVO.get(faixa_alvo_name, FAIXAS_ALVO["Hipismo (Imagens)"])
+    if faixa_alvo_name in FAIXAS_ALVO:
+        faixa = FAIXAS_ALVO[faixa_alvo_name]
+    elif "Hipismo (Imagens)" in FAIXAS_ALVO:
+        faixa = FAIXAS_ALVO["Hipismo (Imagens)"]
+    elif FAIXAS_ALVO:
+        faixa = FAIXAS_ALVO[list(FAIXAS_ALVO.keys())[0]]
+    else:
+        # Fallback de segurança absoluto
+        faixa = {s: (0.0, 100.0) for s in SIEVES}
+        faixa["AFS"] = (0.0, 300.0)
     
     # Construir vetor alvo (ponto médio de cada peneira)
     target = np.array([(faixa[s][0] + faixa[s][1]) / 2.0 for s in SIEVES])
@@ -159,4 +196,20 @@ def dimensionar_insumos(length, width, thickness, density, fiber_mode, fiber_val
         "volume": round(volume, 2),
         "sand_mass": round(sand_mass, 2),
         "fiber_mass": round(fiber_mass, 3)
+    }
+
+
+def mapear_para_usda(record):
+    """
+    Agrega os resultados das peneiras conforme a norma USDA.
+    """
+    return {
+        "Cascalho Grosso": 0.0,
+        "Cascalho Fino": float(record.get("#10", 0.0)),
+        "Muito Grossa": float(record.get("#14", 0.0)) + float(record.get("#18", 0.0)),
+        "Grossa": float(record.get("#35", 0.0)),
+        "Média": float(record.get("#40", 0.0)) + float(record.get("#60", 0.0)),
+        "Fina": float(record.get("#100", 0.0)) + float(record.get("#140", 0.0)),
+        "Muita Fina": float(record.get("#200", 0.0)) + float(record.get("#270", 0.0)),
+        "Finos": float(record.get("Finos", 0.0))
     }
