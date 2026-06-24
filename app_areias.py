@@ -256,12 +256,39 @@ def plot_curva_comparativa(blend_result, target_profile, label_result="Mistura R
     return fig
 
 
-def plot_barras_mistura(blend_result):
+def plot_barras_mistura(blend_result, target_profile=None):
     fig, ax = plt.subplots(figsize=(10, 3.8))
     x = SIEVES
     y = [blend_result[s] for s in x]
     
-    bars = ax.bar(x, y, color="#0f3a61", alpha=0.85, edgecolor="#09253f", width=0.55)
+    # Determinar a cor de cada barra com base nos limites da faixa alvo
+    colors = []
+    edgecolors = []
+    if target_profile and target_profile in blend_engine.FAIXAS_ALVO:
+        faixa = blend_engine.FAIXAS_ALVO[target_profile]
+        for s in x:
+            val = blend_result[s]
+            l_min, l_max = faixa[s]
+            if val < l_min or val > l_max:
+                colors.append("#c62828") # Vermelho (Fora do Alvo)
+                edgecolors.append("#8b1c1c")
+            else:
+                colors.append("#2e7d32") # Verde (Dentro do Alvo)
+                edgecolors.append("#1b5e20")
+    else:
+        colors = ["#0f3a61"] * len(x)
+        edgecolors = ["#09253f"] * len(x)
+        
+    bars = ax.bar(x, y, color=colors, alpha=0.85, edgecolor=edgecolors, width=0.55)
+    
+    # Adicionar legenda personalizada se houver comparação ativa
+    if target_profile and target_profile in blend_engine.FAIXAS_ALVO:
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor="#2e7d32", edgecolor="#1b5e20", alpha=0.85, label="Dentro do Alvo"),
+            Patch(facecolor="#c62828", edgecolor="#8b1c1c", alpha=0.85, label="Fora do Alvo/Excesso")
+        ]
+        ax.legend(handles=legend_elements, loc="upper right", frameon=True, facecolor="#f8fafc", edgecolor="none")
     
     # Adicionar o valor exato acima de cada barra
     for bar in bars:
@@ -1332,7 +1359,7 @@ def main():
                 fig_blend_curva = plot_curva_comparativa(blend_result, target_profile)
                 st.pyplot(fig_blend_curva)
             with col_blend_g2:
-                fig_blend_barras = plot_barras_mistura(blend_result)
+                fig_blend_barras = plot_barras_mistura(blend_result, target_profile)
                 st.pyplot(fig_blend_barras)
 
     # ----------------------------------------------------
@@ -1416,7 +1443,7 @@ def main():
                     st.pyplot(fig_curva)
                     
                 with col_g2:
-                    fig_barras = plot_barras_mistura(st.session_state.current_blend)
+                    fig_barras = plot_barras_mistura(st.session_state.current_blend, st.session_state.current_profile)
                     st.pyplot(fig_barras)
                     
                 # Tabela de classificação USDA do blend
