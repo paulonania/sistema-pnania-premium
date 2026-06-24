@@ -261,40 +261,56 @@ def plot_barras_mistura(blend_result, target_profile=None):
     x = SIEVES
     y = [blend_result[s] for s in x]
     
-    # Determinar a cor de cada barra com base nos limites da faixa alvo
-    colors = []
-    edgecolors = []
+    # Determinar a porção que está dentro do alvo (verde) e o excesso/falha (vermelho)
+    green_heights = []
+    red_heights = []
+    red_bottoms = []
+    
     if target_profile and target_profile in blend_engine.FAIXAS_ALVO:
         faixa = blend_engine.FAIXAS_ALVO[target_profile]
         for s in x:
             val = blend_result[s]
             l_min, l_max = faixa[s]
-            if val < l_min or val > l_max:
-                colors.append("#c62828") # Vermelho (Fora do Alvo)
-                edgecolors.append("#8b1c1c")
+            if val > l_max:
+                green_heights.append(l_max)
+                red_heights.append(val - l_max)
+                red_bottoms.append(l_max)
+            elif val < l_min:
+                green_heights.append(0.0)
+                red_heights.append(val)
+                red_bottoms.append(0.0)
             else:
-                colors.append("#2e7d32") # Verde (Dentro do Alvo)
-                edgecolors.append("#1b5e20")
+                green_heights.append(val)
+                red_heights.append(0.0)
+                red_bottoms.append(0.0)
     else:
-        colors = ["#0f3a61"] * len(x)
-        edgecolors = ["#09253f"] * len(x)
-        
-    bars = ax.bar(x, y, color=colors, alpha=0.85, edgecolor=edgecolors, width=0.55)
+        green_heights = y
+        red_heights = [0.0] * len(x)
+        red_bottoms = [0.0] * len(x)
+
+    # Plotar a barra base (verde se houver alvo, azul se não houver)
+    main_color = "#2e7d32" if target_profile else "#0f3a61"
+    main_edge = "#1b5e20" if target_profile else "#09253f"
+    
+    ax.bar(x, green_heights, color=main_color, alpha=0.85, edgecolor=main_edge, width=0.55)
+    
+    # Plotar o topo empilhado em vermelho para os excessos/falhas
+    if target_profile:
+        ax.bar(x, red_heights, bottom=red_bottoms, color="#c62828", alpha=0.85, edgecolor="#8b1c1c", width=0.55)
     
     # Adicionar legenda personalizada se houver comparação ativa
     if target_profile and target_profile in blend_engine.FAIXAS_ALVO:
         from matplotlib.patches import Patch
         legend_elements = [
             Patch(facecolor="#2e7d32", edgecolor="#1b5e20", alpha=0.85, label="Dentro do Alvo"),
-            Patch(facecolor="#c62828", edgecolor="#8b1c1c", alpha=0.85, label="Fora do Alvo/Excesso")
+            Patch(facecolor="#c62828", edgecolor="#8b1c1c", alpha=0.85, label="Excesso/Fora do Alvo")
         ]
         ax.legend(handles=legend_elements, loc="upper right", frameon=True, facecolor="#f8fafc", edgecolor="none")
     
     # Adicionar o valor exato acima de cada barra
-    for bar in bars:
-        height = bar.get_height()
-        ax.annotate(f"{height:.1f}%",
-                    xy=(bar.get_x() + bar.get_width() / 2, height),
+    for s, val in zip(x, y):
+        ax.annotate(f"{val:.1f}%",
+                    xy=(s, val),
                     xytext=(0, 3),
                     textcoords="offset points",
                     ha="center", va="bottom", fontsize=8, fontweight="bold", color="#334155")
