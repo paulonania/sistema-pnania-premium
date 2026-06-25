@@ -60,6 +60,13 @@ custom_textarea = st.components.v1.declare_component("custom_textarea", path=TEX
 
 
 def aplicar_levantamento_carregado(meta_nova, df_nova, source_id, mensagem):
+    # Atualizar session_state das notas para evitar que sejam sobrescritas pelas antigas ao salvar
+    for key, meta_key in [("rep_notas_gerais", "notas_gerais"), 
+                           ("rep_notas_manejo", "notas_manejo"), 
+                           ("rep_notas_parecer", "notas_parecer")]:
+        if meta_key in meta_nova:
+            st.session_state[key] = meta_nova[meta_key]
+            
     st.session_state.meta = meta_nova
     st.session_state.df_coleta = df_nova
     st.session_state[CSV_UPLOAD_KEY] = source_id
@@ -145,6 +152,11 @@ def init_session():
                 st.session_state.meta = meta_carregada
                 st.session_state.df_coleta = df_carregado
                 st.session_state.passo = int(meta_carregada.get("passo", 0))
+                for key, meta_key in [("rep_notas_gerais", "notas_gerais"), 
+                                       ("rep_notas_manejo", "notas_manejo"), 
+                                       ("rep_notas_parecer", "notas_parecer")]:
+                    if meta_key in meta_carregada:
+                        st.session_state[key] = meta_carregada[meta_key]
                 carregou_sucesso = True
             except Exception:
                 pass

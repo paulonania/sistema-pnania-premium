@@ -50,7 +50,6 @@
     const label = document.getElementById("label-el");
 
     function updateHeight() {
-      // Notify Streamlit of the iframe's new height
       const height = document.body.scrollHeight || document.documentElement.scrollHeight;
       window.parent.postMessage({
         isStreamlitMessage: true,
@@ -74,7 +73,6 @@
       }, "*");
     }
 
-    // Listen for render messages from Streamlit
     window.addEventListener("message", function(event) {
       if (event.data.type === "streamlit:render") {
         const args = event.data.args;
@@ -84,45 +82,18 @@
         label.textContent = args.label || "";
         textarea.placeholder = args.placeholder || "";
         
-        // Handle external updates (like CSV load or clear data)
-        if (lastSentValue !== null && defaultValue !== lastSentValue) {
+        if (lastSentValue === null || defaultValue !== lastSentValue) {
           textarea.value = defaultValue;
-          localStorage.setItem("pnania_" + key, defaultValue);
           lastSentValue = defaultValue;
           adjustTextareaHeight();
-          return;
         }
-
-        // Initialize value on first mount
-        if (lastSentValue === null) {
-          const cached = localStorage.getItem("pnania_" + key);
-          if (cached !== null) {
-            textarea.value = cached;
-            lastSentValue = cached;
-            sendToStreamlit(cached);
-          } else {
-            textarea.value = defaultValue;
-            lastSentValue = defaultValue;
-          }
-        }
-
-        adjustTextareaHeight();
       }
     });
 
-    // Save to localStorage immediately on every keystroke
-    textarea.addEventListener("input", function(e) {
-      const val = e.target.value;
-      if (key) {
-        localStorage.setItem("pnania_" + key, val);
-      }
-      adjustTextareaHeight();
-    });
-
-    // Send to Streamlit with debounce to avoid laggy typing
     let debounceTimer;
     textarea.addEventListener("input", function(e) {
       clearTimeout(debounceTimer);
+      adjustTextareaHeight();
       debounceTimer = setTimeout(() => {
         sendToStreamlit(e.target.value);
       }, 300);
@@ -132,7 +103,6 @@
       sendToStreamlit(e.target.value);
     });
 
-    // Notify Streamlit that the component is ready
     window.parent.postMessage({
       isStreamlitMessage: true,
       type: "streamlit:componentReady",
