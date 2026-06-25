@@ -485,7 +485,7 @@ def gerar_pdf_dimensionamento(pista_nome, comprimento, largura, espessura, densi
     pdf.ln(2)
     
     pdf.set_font("Helvetica", "", 9.5)
-    fib_desc = "Porcentagem sobre a massa de areia" if fiber_mode == "A" else "Massa de fibra por metro quadrado de pista"
+    fib_desc = "Porcentagem sobre a massa de areia" if modo_fibra == "A" else "Massa de fibra por metro quadrado de pista"
     pdf.cell(50, 6, _texto_latin("Método de Dosagem:"), border="L")
     pdf.set_font("Helvetica", "B", 9.5)
     pdf.cell(140, 6, _texto_latin(fib_desc), border="R", ln=True)
@@ -493,8 +493,8 @@ def gerar_pdf_dimensionamento(pista_nome, comprimento, largura, espessura, densi
     pdf.set_font("Helvetica", "", 9.5)
     pdf.cell(50, 6, _texto_latin("Dosagem Definida:"), border="LB")
     pdf.set_font("Helvetica", "B", 9.5)
-    unit_str = "%" if fiber_mode == "A" else " kg/m²"
-    pdf.cell(140, 6, _texto_latin(f"{fiber_value:.2f}{unit_str}"), border="RB", ln=True)
+    unit_str = "%" if modo_fibra == "A" else " kg/m²"
+    pdf.cell(140, 6, _texto_latin(f"{dosagem_fibra:.2f}{unit_str}"), border="RB", ln=True)
     
     pdf.ln(10)
     
