@@ -220,7 +220,7 @@ def init_session():
     if "pista_espessura" not in st.session_state:
         st.session_state.pista_espessura = 10.0
     if "pista_densidade" not in st.session_state:
-        st.session_state.pista_densidade = 0.0
+        st.session_state.pista_densidade = 1.55
     if "pista_modo_fibra" not in st.session_state:
         st.session_state.pista_modo_fibra = "A"
     if "pista_dosagem_fibra" not in st.session_state:
@@ -467,15 +467,14 @@ def main():
     init_session()
     render_cabecalho()
     
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📝 1. Cadastro de Areia",
         "📷 2. Formato do Grão",
         "🏜️ 3. Granulometria",
         "🔍 4. Detalhes da Areia",
         "🎯 5. Faixa Alvo",
         "⚙️ 6. Blendagem",
-        "📊 7. Dimensionador & Laudo",
-        "📋 8. Relatórios"
+        "📊 7. Dimensionador & Laudo"
     ])
     
     # ----------------------------------------------------
@@ -1020,6 +1019,39 @@ def main():
                         with cols_photos[idx_p % min(n_photos, 3)]:
                             st.image(p_path, caption=f"Foto {idx_p + 1}: {sand_rec['Areia']}", use_container_width=True)
                             
+            # Botão de exportação do relatório PDF da areia específica (Aba 4)
+            st.divider()
+            col_down_areia, _ = st.columns([1.5, 2])
+            with col_down_areia:
+                # Gerar gráficos para embutir no PDF
+                if comparar_faixa != "-- Sem Comparação --":
+                    fig_linha_pdf = plot_curva_comparativa(sand_rec, comparar_faixa, label_result=sand_rec['Areia'])
+                else:
+                    fig_linha_pdf = plot_linha_areia(sand_rec)
+                fig_barras_pdf = plot_barras_areia(sand_rec)
+                
+                pdf_bytes_areia = pdf_report_areias.gerar_pdf_detalhes_areia(
+                    sand_rec=sand_rec,
+                    comparar_faixa=comparar_faixa if comparar_faixa != "-- Sem Comparação --" else None,
+                    faixa_dict=st.session_state.faixas_alvo,
+                    fig_linha=fig_linha_pdf,
+                    fig_barras=fig_barras_pdf
+                )
+                
+                # Fechar plots temporários
+                plt.close(fig_linha_pdf)
+                plt.close(fig_barras_pdf)
+                
+                st.download_button(
+                    label=f"📥 Exportar Relatório de Areia (PDF)",
+                    data=pdf_bytes_areia,
+                    file_name=f"Relatorio_Areia_{sanitizar_nome_arquivo(sand_rec['Areia'])}.pdf",
+                    mime="application/pdf",
+                    type="primary",
+                    use_container_width=True,
+                    key=f"btn_pdf_detalhe_{sand_rec['Areia']}"
+                )
+                            
 
 
     # ----------------------------------------------------
@@ -1414,17 +1446,21 @@ def main():
                     
             with c_ins2:
                 st.markdown("#### Parâmetros de Materiais")
-                # Densidade como campo obrigatório antes do cálculo
-                densidade = st.number_input(
-                    "Densidade da Areia (t/m³)",
-                    0.0, 3.0, value=st.session_state.pista_densidade,
-                    step=0.05,
-                    help="Obrigatório para cálculo de massa total em toneladas."
-                )
-                st.session_state.pista_densidade = densidade
                 
-                if densidade == 0.0:
-                    st.warning("⚠️ DENSIDADE OBRIGATÓRIA: Insira o valor da densidade da areia para habilitar o cálculo de tonelagem.")
+                # Controle de alteração da densidade padrão (1.55 t/m³)
+                alterar_densidade = st.checkbox("Alterar densidade padrão (1.55 t/m³)", value=False, key="check_alterar_densidade")
+                if alterar_densidade:
+                    densidade = st.number_input(
+                        "Densidade da Areia (t/m³)",
+                        0.0, 3.0, value=st.session_state.pista_densidade if st.session_state.pista_densidade > 0 else 1.55,
+                        step=0.05,
+                        help="Densidade da areia para cálculo de massa total em toneladas."
+                    )
+                    st.session_state.pista_densidade = densidade
+                else:
+                    densidade = 1.55
+                    st.session_state.pista_densidade = 1.55
+                    st.info("💡 Utilizando densidade padrão de 1.55 t/m³.")
                 
                 col_fib = st.columns([2, 1])
                 with col_fib[0]:
@@ -1534,235 +1570,123 @@ def main():
                         "O Método Paulo Nania une a análise física dos materiais com o dimensionamento granulométrico ideal "
                         "para obter superfícies estáveis, garantindo o amortecimento de impacto, suporte e tração adequados para o esporte hípico."
                     )
-            else:
-                st.info("Insira a densidade acima para gerar a consolidação e os gráficos de laudo da pista.")
-
-    # ----------------------------------------------------
-    # TAB 8: RELATÓRIOS
-    # ----------------------------------------------------
-    with tab8:
-        st.subheader("📋 Geração e Exportação de Relatórios")
-        st.write("Gere e exporte relatórios técnicos com o logotipo oficial do Método Paulo Nania.")
-        
-        tipo_relatorio = st.radio(
-            "Selecione o tipo de relatório que deseja gerar:",
-            [
-                "1. Relatório de Detalhes da Areia",
-                "2. Relatório de Dimensionamento de Pista",
-                "3. Laudo Técnico de Blendagem"
-            ],
-            index=0,
-            key="tipo_relatorio_selecao"
-        )
-        
-        st.divider()
-        
-        if "1." in tipo_relatorio:
-            st.markdown("### 🔍 Relatório Detalhes da Areia")
-            st.write("Gere um relatório técnico de uma areia específica cadastrada, contendo granulometria, curva, barras, classificação USDA e microscopia.")
-            
-            areias_nomes_rep = [a["Areia"] for a in st.session_state.banco_areias]
-            selected_sand_rep = st.selectbox(
-                "Selecione a Areia para o Relatório:",
-                options=areias_nomes_rep,
-                key="rep_sand_select"
-            )
-            
-            comparar_faixa_rep = st.selectbox(
-                "Comparar com uma Faixa Alvo (Opcional):",
-                options=["-- Sem Comparação --"] + list(st.session_state.faixas_alvo.keys()),
-                key="rep_compare_select"
-            )
-            
-            # Recuperar registro
-            sand_rec = next(a for a in st.session_state.banco_areias if a["Areia"] == selected_sand_rep)
-            
-            # Gerar gráficos para embutir no PDF
-            if comparar_faixa_rep != "-- Sem Comparação --":
-                fig_linha = plot_curva_comparativa(sand_rec, comparar_faixa_rep, label_result=sand_rec['Areia'])
-            else:
-                fig_linha = plot_linha_areia(sand_rec)
-            fig_barras = plot_barras_areia(sand_rec)
-            
-            # Botão de download
-            pdf_bytes = pdf_report_areias.gerar_pdf_detalhes_areia(
-                sand_rec=sand_rec,
-                comparar_faixa=comparar_faixa_rep if comparar_faixa_rep != "-- Sem Comparação --" else None,
-                faixa_dict=st.session_state.faixas_alvo,
-                fig_linha=fig_linha,
-                fig_barras=fig_barras
-            )
-            
-            # Fechar os plots para liberar memória
-            plt.close(fig_linha)
-            plt.close(fig_barras)
-            
-            st.download_button(
-                label="📥 Exportar Relatório de Areia (PDF)",
-                data=pdf_bytes,
-                file_name=f"Relatorio_Areia_{sanitizar_nome_arquivo(selected_sand_rep)}.pdf",
-                mime="application/pdf",
-                type="primary",
-                use_container_width=True
-            )
-            
-        elif "2." in tipo_relatorio:
-            st.markdown("### 📊 Relatório de Dimensionamento de Pista")
-            st.write("Gere o relatório detalhado contendo a cubagem de areia, dosagem de fibra e peso/toneladas de cada componente do blend.")
-            
-            pista_densidade = st.session_state.get("pista_densidade", 0.0)
-            
-            if pista_densidade == 0.0:
-                st.warning("⚠️ Densidade não configurada! Por favor, insira o valor da densidade da areia na aba '7. Dimensionador & Laudo' para habilitar o dimensionamento.")
-            else:
-                pista_nome = st.session_state.pista_nome
-                comprimento = st.session_state.pista_comprimento
-                largura = st.session_state.pista_largura
-                espessura = st.session_state.pista_espessura
-                modo_fibra = st.session_state.get("pista_modo_fibra", "A")
-                dosagem_fibra = st.session_state.get("pista_dosagem_fibra", 0.3 if modo_fibra == "A" else 3.0)
                 
-                insumos = dimensionar_insumos(
-                    comprimento, largura, espessura, pista_densidade,
-                    modo_fibra, dosagem_fibra
-                )
+                # Seção de Geração e Exportação de Relatórios (Aba 7)
+                st.divider()
+                st.subheader("📋 Exportação de Relatórios Técnicos")
+                col_rep1, col_rep2 = st.columns(2)
                 
-                # Active components
-                active_sands_props = []
-                if "current_sands" in st.session_state and "current_proportions" in st.session_state:
-                    active_sands_props = [
-                        (sand, prop) for sand, prop in zip(st.session_state.current_sands, st.session_state.current_proportions)
-                        if prop > 0
-                    ]
-                
-                pdf_bytes = pdf_report_areias.gerar_pdf_dimensionamento(
-                    pista_nome=pista_nome,
-                    comprimento=comprimento,
-                    largura=largura,
-                    espessura=espessura,
-                    densidade=pista_densidade,
-                    modo_fibra=modo_fibra,
-                    dosagem_fibra=dosagem_fibra,
-                    insumos=insumos,
-                    active_sands_with_props=active_sands_props
-                )
-                
-                st.download_button(
-                    label="📥 Exportar Relatório de Dimensionamento (PDF)",
-                    data=pdf_bytes,
-                    file_name=f"Dimensionamento_{sanitizar_nome_arquivo(pista_nome)}.pdf",
-                    mime="application/pdf",
-                    type="primary",
-                    use_container_width=True
-                )
-                
-        elif "3." in tipo_relatorio:
-            st.markdown("### 📋 Laudo Técnico de Blendagem")
-            st.write("Gere o laudo consolidado completo do blend com análises, comparativos de peneiras, gráficos, classificação USDA e microscopia.")
-            
-            if "current_blend" not in st.session_state:
-                st.warning("⚠️ Mistura não configurada! Por favor, configure o blend na aba '6. Blendagem' antes de exportar o laudo.")
-            else:
-                pista_nome = st.session_state.pista_nome
-                target_profile = st.session_state.current_profile
-                blend_afs = st.session_state.current_blend_afs
-                
-                # Insumos
-                pista_densidade = st.session_state.get("pista_densidade", 0.0)
-                comprimento = st.session_state.pista_comprimento
-                largura = st.session_state.pista_largura
-                espessura = st.session_state.pista_espessura
-                modo_fibra = st.session_state.get("pista_modo_fibra", "A")
-                dosagem_fibra = st.session_state.get("pista_dosagem_fibra", 0.3 if modo_fibra == "A" else 3.0)
-                
-                insumos = dimensionar_insumos(
-                    comprimento, largura, espessura, pista_densidade if pista_densidade > 0 else 1.5,
-                    modo_fibra, dosagem_fibra
-                )
-                insumos["thickness"] = espessura
-                if pista_densidade == 0.0:
-                    insumos["sand_mass"] = 0.0
-                    insumos["fiber_mass"] = 0.0
-                
-                # Composição string
-                composition_str = " + ".join([f"{p}% {s['Areia']}" for s, p in zip(st.session_state.current_sands, st.session_state.current_proportions) if p > 0])
-                
-                # Faixa alvo limits
-                faixa = st.session_state.faixas_alvo[target_profile]
-                target_afs = faixa["AFS"]
-                
-                # Tabela comparativa
-                rows_comp = []
-                for s in SIEVES:
-                    t_min, t_max = faixa[s]
-                    res_val = st.session_state.current_blend[s]
-                    if res_val < t_min:
-                        status = "ABAIXO"
-                    elif res_val > t_max:
-                        status = "ACIMA"
-                    else:
-                        status = "DENTRO"
-                    rows_comp.append({
-                        "Peneira": s,
-                        "Ref. Mínima (%)": f"{t_min:.1f}%",
-                        "Ref. Máxima (%)": f"{t_max:.1f}%",
-                        "Resultado Blend (%)": f"{res_val:.1f}%",
-                        "Status": status
-                    })
-                
-                # Figuras
-                fig_curva = plot_curva_comparativa(st.session_state.current_blend, target_profile)
-                fig_barras = plot_barras_mistura(st.session_state.current_blend, target_profile)
-                
-                # USDA list (componentes ativos + blend)
-                active_sands = [s for s, p in zip(st.session_state.current_sands, st.session_state.current_proportions) if p > 0]
-                blend_rec = dict(st.session_state.current_blend)
-                blend_rec["Areia"] = "MISTURA RESULTANTE"
-                usda_sands_list = active_sands + [blend_rec]
-                
-                # Active components with props
+                # Componentes ativos
                 active_sands_props = [
                     (sand, prop) for sand, prop in zip(st.session_state.current_sands, st.session_state.current_proportions)
                     if prop > 0
                 ]
                 
-                # Notas / Observações
-                laudo_notas = st.text_area(
-                    "Parecer Técnico / Notas do Laudo:",
-                    value=st.session_state.get("laudo_notas", ""),
-                    height=120,
-                    placeholder="Digite aqui as considerações técnicas, recomendações de manejo ou observações do laudo...",
-                    key="laudo_notas_input"
-                )
-                st.session_state.laudo_notas = laudo_notas
-                
-                pdf_bytes = pdf_report_areias.gerar_pdf_laudo(
-                    pista_nome=pista_nome,
-                    target_profile=target_profile,
-                    composition_str=composition_str,
-                    insumos=insumos,
-                    df_comp_data=rows_comp,
-                    blend_afs=blend_afs,
-                    target_afs=target_afs,
-                    fig_curva=fig_curva,
-                    fig_barras=fig_barras,
-                    usda_sands_list=usda_sands_list,
-                    active_sands_with_props=active_sands_props,
-                    comments_notes=laudo_notas
-                )
-                
-                # Fechar plots
-                plt.close(fig_curva)
-                plt.close(fig_barras)
-                
-                st.download_button(
-                    label="📥 Exportar Laudo Técnico Completo (PDF)",
-                    data=pdf_bytes,
-                    file_name=f"Laudo_Tecnico_{sanitizar_nome_arquivo(pista_nome)}.pdf",
-                    mime="application/pdf",
-                    type="primary",
-                    use_container_width=True
-                )
+                with col_rep1:
+                    st.markdown("##### Relatório de Dimensionamento")
+                    st.write("Gere o relatório contendo a cubagem, dosagem de fibra e peso/toneladas de cada componente do blend.")
+                    
+                    pdf_bytes_dim = pdf_report_areias.gerar_pdf_dimensionamento(
+                        pista_nome=pista_nome,
+                        comprimento=comprimento,
+                        largura=largura,
+                        espessura=espessura,
+                        densidade=densidade,
+                        modo_fibra=st.session_state.pista_modo_fibra,
+                        dosagem_fibra=st.session_state.pista_dosagem_fibra,
+                        insumos=insumos,
+                        active_sands_with_props=active_sands_props
+                    )
+                    
+                    st.download_button(
+                        label="📥 Exportar Relatório de Dimensionamento (PDF)",
+                        data=pdf_bytes_dim,
+                        file_name=f"Dimensionamento_{sanitizar_nome_arquivo(pista_nome)}.pdf",
+                        mime="application/pdf",
+                        type="primary",
+                        use_container_width=True,
+                        key="btn_pdf_dimensionamento_aba7"
+                    )
+                    
+                with col_rep2:
+                    st.markdown("##### Laudo Técnico de Blendagem")
+                    st.write("Gere o laudo consolidado completo do blend com análises de peneiras e classificação USDA.")
+                    
+                    # Parecer Técnico diretamente na Aba 7
+                    laudo_notas = st.text_area(
+                        "Parecer Técnico / Observações para o Laudo:",
+                        value=st.session_state.get("laudo_notas", ""),
+                        height=100,
+                        placeholder="Digite aqui considerações técnicas ou recomendações de manejo para o laudo...",
+                        key="laudo_notas_aba7"
+                    )
+                    st.session_state.laudo_notas = laudo_notas
+                    
+                    # Configurar parâmetros para gerar_pdf_laudo
+                    target_profile = st.session_state.current_profile
+                    blend_afs = st.session_state.current_blend_afs
+                    composition_str = " + ".join([f"{p}% {s['Areia']}" for s, p in zip(st.session_state.current_sands, st.session_state.current_proportions) if p > 0])
+                    
+                    faixa = st.session_state.faixas_alvo[target_profile]
+                    target_afs = faixa["AFS"]
+                    
+                    # Tabela comparativa
+                    rows_comp = []
+                    for s in SIEVES:
+                        t_min, t_max = faixa[s]
+                        res_val = st.session_state.current_blend[s]
+                        if res_val < t_min:
+                            status = "ABAIXO"
+                        elif res_val > t_max:
+                            status = "ACIMA"
+                        else:
+                            status = "DENTRO"
+                        rows_comp.append({
+                            "Peneira": s,
+                            "Ref. Mínima (%)": f"{t_min:.1f}%",
+                            "Ref. Máxima (%)": f"{t_max:.1f}%",
+                            "Resultado Blend (%)": f"{res_val:.1f}%",
+                            "Status": status
+                        })
+                        
+                    fig_curva = plot_curva_comparativa(st.session_state.current_blend, target_profile)
+                    fig_barras = plot_barras_mistura(st.session_state.current_blend, target_profile)
+                    
+                    # Lista USDA (componentes ativos + mistura)
+                    active_sands = [s for s, p in zip(st.session_state.current_sands, st.session_state.current_proportions) if p > 0]
+                    blend_rec = dict(st.session_state.current_blend)
+                    blend_rec["Areia"] = "MISTURA RESULTANTE"
+                    usda_sands_list = active_sands + [blend_rec]
+                    
+                    pdf_bytes_laudo = pdf_report_areias.gerar_pdf_laudo(
+                        pista_nome=pista_nome,
+                        target_profile=target_profile,
+                        composition_str=composition_str,
+                        insumos=insumos,
+                        df_comp_data=rows_comp,
+                        blend_afs=blend_afs,
+                        target_afs=target_afs,
+                        fig_curva=fig_curva,
+                        fig_barras=fig_barras,
+                        usda_sands_list=usda_sands_list,
+                        active_sands_with_props=active_sands_props,
+                        comments_notes=laudo_notas
+                    )
+                    
+                    plt.close(fig_curva)
+                    plt.close(fig_barras)
+                    
+                    st.download_button(
+                        label="📥 Exportar Laudo Técnico Completo (PDF)",
+                        data=pdf_bytes_laudo,
+                        file_name=f"Laudo_Tecnico_{sanitizar_nome_arquivo(pista_nome)}.pdf",
+                        mime="application/pdf",
+                        type="primary",
+                        use_container_width=True,
+                        key="btn_pdf_laudo_aba7"
+                    )
+            else:
+                st.info("Insira a densidade acima para gerar a consolidação e os gráficos de laudo da pista.")
 
 
 if __name__ == "__main__":
