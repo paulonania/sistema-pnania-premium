@@ -684,7 +684,7 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         nota_tecnica_txt = "Nota Técnica: A ciência é um guia, não um absoluto. Nossa análise integra dados de precisão, inspeção visual e contexto ambiental para o diagnóstico final."
         pdf.multi_cell(0, 4.2, _texto_latin(nota_tecnica_txt), border=0, align="L")
 
-    pdf_output = pdf.output()
+    pdf_output = pdf.output(dest='S')
     
     # Cleanup all temp files
     global _TEMP_FILES

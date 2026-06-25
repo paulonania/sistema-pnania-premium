@@ -345,7 +345,7 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
                 pdf.multi_cell(0, 4.5, _texto_latin(meta["notas_parecer"]))
                 pdf.ln(4)
 
-    pdf_output = pdf.output()
+    pdf_output = pdf.output(dest='S')
     
     # Cleanup all temp files
     global _TEMP_FILES
