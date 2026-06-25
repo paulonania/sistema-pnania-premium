@@ -15,11 +15,15 @@ from analysis import (
 LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "logo.png")
 
 
+_TEMP_FILES = []
+
 def _fig_para_bytes(fig, dpi=150):
-    buffer = io.BytesIO()
-    fig.savefig(buffer, format="png", bbox_inches="tight", dpi=dpi)
-    buffer.seek(0)
-    return buffer
+    import tempfile
+    fd, path = tempfile.mkstemp(suffix=".png")
+    os.close(fd)
+    fig.savefig(path, format="png", bbox_inches="tight", dpi=dpi)
+    _TEMP_FILES.append(path)
+    return path
 
 
 def _adicionar_logo(pdf, largura=52):
@@ -681,4 +685,15 @@ def gerar_pdf(meta, fig_penetro=None, fig_espessura=None, fig_umidade=None, apen
         pdf.multi_cell(0, 4.2, _texto_latin(nota_tecnica_txt), border=0, align="L")
 
     pdf_output = pdf.output()
+    
+    # Cleanup all temp files
+    global _TEMP_FILES
+    for path in _TEMP_FILES:
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+    _TEMP_FILES.clear()
+    
     return bytes(pdf_output) if isinstance(pdf_output, (bytes, bytearray)) else pdf_output.encode("latin-1", errors="ignore")
